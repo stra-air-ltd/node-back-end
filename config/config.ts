@@ -1,3 +1,4 @@
+
 interface Config {
     database: {
         host: string;
@@ -5,6 +6,7 @@ interface Config {
         username: string;
         password: string;
         database: string;
+        database_type: string;
     };
     server: {
         port: number;
@@ -24,6 +26,7 @@ const defaultConfig: Config = {
         username: 'postgres',
         password: 'postgres',
         database: 'mydb',
+        database_type:'postgres'
     },
     server: {
         port: 3000,
@@ -31,7 +34,9 @@ const defaultConfig: Config = {
     },
     logging: {
         level: 'info',
-        transports: [],
+        transports: [
+
+        ],
     },
 };
 
