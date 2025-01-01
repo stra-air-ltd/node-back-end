@@ -11,7 +11,22 @@ export function databaseQusry(sqlSentence: string) {
                 user: Config.database.username,
                 password: Config.database.password,
                 database: Config.database.database
-            });
+            })
+            connectMysql.query(sqlSentence)
+                .then(([rows, fields]) => {
+                    return {
+                        message: '查询成功',
+                        code: 200,
+                        data: rows
+                    }
+                })
+                .catch((err) => {
+                    return {
+                        message: '查询失败' + err, 
+                        code: 400,
+                        data: null
+                    }
+                });
             break;
 
         case Config.database.database_type ==='postgres':
@@ -22,12 +37,46 @@ export function databaseQusry(sqlSentence: string) {
                 password: Config.database.password,
                 database: Config.database.database
             }); 
+            connectPostgres.query(sqlSentence)
+                .then((res) => {
+                    return {
+                        message: '查询成功',
+                        code: 200,
+                        data: res.rows
+                    }
+                })
+                .catch((err) => {
+                    return {
+                        message: '查询失败' + err,
+                        code: 400,
+                        data: null
+                    }
+                });
             break;
+        
         default:
             return {
-                message: '数据库类型错误',
-                code: 400
+                message: '数据库类型错误,请检查配置文件 database_type 字段是否正确',
+                code: 400,
+                data: null
             }
             break;
+    }
+}
+
+export function databaseConnectTest() {
+    const testRespond = databaseQusry("FROM * `" + Config.database.database + "`");
+    if (testRespond.code === 200) {
+        return {
+            message: '数据库连接成功',
+            code: 200,
+            data: null
+        }
+    } else {
+        return {
+            message: '数据库连接失败',
+            code: 400,
+            data: null
+        }
     }
 }

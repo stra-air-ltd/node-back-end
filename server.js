@@ -2,6 +2,7 @@ import Hapi from '@hapi/hapi';
 import routes from './routes';
 import plugins from './plugins';
 import config from './config';
+
 const init = async () => {
   const server = Hapi.server({
     port: config.server.port,
