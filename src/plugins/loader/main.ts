@@ -65,7 +65,14 @@ export function databaseQusry(sqlSentence: string) {
 }
 
 export function databaseConnectTest() {
-    const testRespond = databaseQusry("FROM * `" + Config.database.database + "`");
+    interface testRespond {
+        message: string,
+        code: number,
+        data: any
+    }
+
+    const testRespond = databaseQusry("FROM * `" + Config.database.database + "`") as testRespond;
+
     if (testRespond.code === 200) {
         return {
             message: '数据库连接成功',
