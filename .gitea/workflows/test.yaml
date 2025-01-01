@@ -45,5 +45,8 @@ jobs:
         run: 
           npm config set registry https://registry.npmmirror.com;
           npm install;
+      - name: 编译代码
+        run:
+          npx tsc
       - name: 当前任务状态
         run: echo "🍏 该任务的状态是${{ job.status }}。"
