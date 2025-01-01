@@ -11,6 +11,8 @@ interface Config {
     server: {
         port: number;
         host: string;
+        domain: string;
+        ssl: boolean;
     };
     logging: {
         level: string;
@@ -31,6 +33,8 @@ const defaultConfig: Config = {
     server: {
         port: 3000,
         host: 'localhost',
+        domain: 'localhost',
+        ssl: false,
     },
     logging: {
         level: 'info',
