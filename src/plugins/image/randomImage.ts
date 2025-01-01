@@ -2,10 +2,22 @@ import { databaseQusry } from "@/plugins/loader/main";
 import Config from "@/config/config";
 
 export function randomImage(requestType: boolean, number: number) {
-    
+
+    interface respondMaxId {
+        message: string,
+        code: number,
+        data: any
+    }
+
+    interface respond {
+        message: string,
+        code: number,
+        data: any
+    }
+
     const min = 0;
     const sqlSentenceMaxId = "SELECT MAX(id) FROM `random_image`";
-    const respondMaxId = databaseQusry(sqlSentenceMaxId);
+    const respondMaxId =  databaseQusry(sqlSentenceMaxId) as respondMaxId;
     
     let imageNumber: number;
     let maxId: number;
@@ -26,9 +38,9 @@ export function randomImage(requestType: boolean, number: number) {
 
     const randomNumber = Math.floor(Math.random() * (maxId - min + 0)) + min;
     const sqlSentence = "SELECT * FROM `random_image` WHERE `id` = " + randomNumber;
-    const respond = databaseQusry(sqlSentence);
+    const respond = databaseQusry(sqlSentence) as respond;
 
-    if (respondMaxId.code === 200 && respond) {
+    if (respondMaxId.code === 200) {
         return {
             message: '重定向',
             code: 301,
@@ -37,4 +49,6 @@ export function randomImage(requestType: boolean, number: number) {
             }
         }
     }
+
+
 }
