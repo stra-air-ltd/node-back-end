@@ -1,4 +1,4 @@
-import { databaseQusry } from "@/plugins/loader/main";
+import { databaseQusry } from "@/plugins/database/mian";
 import Config from "@/config/config";
 
 export function randomImage(requestType: boolean, number: number) {
