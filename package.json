@@ -1,11 +1,13 @@
 {
-  "name": "nerv-node-bbs-back-end",
+  "name": "nerv-node-back-end",
   "type": "module",
   "version": "1.0.0",
-  "description": "星空伟奕科技有限公司的node.js bbs后端",
+  "description": "星空伟奕科技有限公司的node.js api后端",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "author": "",
   "license": "ISC",
@@ -19,11 +21,16 @@
     "hapi": "^18.1.0",
     "hapi-pino": "^12.1.0",
     "mysql2": "^3.12.0",
-    "pg": "^8.13.1"
+    "pg": "^8.13.1",
+    "typescript": "^4.4.3"
   },
   "devDependencies": {
     "@types/hapi__hapi": "^20.0.13",
     "@types/pg": "^8.11.10",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^9.2.1",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-3": "^6.24.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
   }

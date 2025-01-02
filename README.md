@@ -26,7 +26,7 @@ node-bbs后端模块是一个基于Node.js的API系统，旨在为星空伟奕�
 
 1. 克隆项目代码：
     ```sh
-    git clone https://github.com/your-repo/node-bbs.git
+    git clone https://git.starair.ltd/stae-air-ltd/node-back-end.git
     ```
 
 2. 安装依赖：
