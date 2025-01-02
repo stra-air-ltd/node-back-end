@@ -1,24 +1,13 @@
-import Hapi from '@hapi/hapi';
-import routes from './routes';
-import plugins from './plugins';
-import config from './config';
+import path from 'path';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { dirname } from 'path';
 
-const init = async () => {
-  const server = Hapi.server({
-    port: config.server.port,
-    host: config.server.host,
-  });
+// 获取当前文件的目录名
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-  await server.register(plugins);
-  server.route(routes);
+// 获取 dist/server.js 文件的绝对路径并转换为 file:// URL
+const serverPath = pathToFileURL(path.resolve(__dirname, 'dist', 'server.js')).href;
 
-  await server.start();
-  console.log(`Server running on ${server.info.uri}`);
-};
-
-process.on('unhandledRejection', (err) => {
-  console.log(err);
-  process.exit(1);
-});
-
-init();
+// 动态导入并执行 dist/server.js 文件
+import(serverPath);

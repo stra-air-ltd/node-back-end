@@ -14,6 +14,9 @@ interface Config {
         domain: string;
         ssl: boolean;
     };
+    plugins: {
+        directory: string;
+    };
     logging: {
         level: string;
         transports: any[];
@@ -36,13 +39,15 @@ const defaultConfig: Config = {
         domain: 'localhost',
         ssl: false,
     },
+    plugins: {
+        directory: 'src/plugins',
+    },
     logging: {
         level: 'info',
         transports: [
-
         ],
     },
-};
+} as Config;
 
 
 export default defaultConfig;
