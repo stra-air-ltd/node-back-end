@@ -24,7 +24,8 @@ export default async function LoaderPluginAll(server: Hapi.Server) {
     });
 
     for (registeredPluginsNumber; registeredPluginsNumber === fileCount ; registeredPluginsNumber++) {
-        
+        const file of contentsFiles
+        const filePath: string = path.join(pluginsDirectory, file); 
     }
 
     console.log(`已注册 ${registeredPluginsNumber} 个插件，共 ${fileCount} 个插件`);

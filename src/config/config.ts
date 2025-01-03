@@ -32,9 +32,9 @@ const defaultConfig: Config = {
     database: {
         host: '192.168.1.105',
         port: 5432,
-        username: 'postgres_test',
-        password: '6f8Z4K7FQDrr4t8H',
-        database: 'postgres_test',
+        username: 'postgres',
+        password: '',
+        database: 'postgres',
         database_type:'postgres'
     },
     server: {
