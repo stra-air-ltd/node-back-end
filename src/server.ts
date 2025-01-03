@@ -1,6 +1,5 @@
 import Hapi from '@hapi/hapi';
 import { routes } from './routes/routes';
-import { registerPluginsFromDirectory } from './plugins/loader/main';
 import Config from './config/config';
 
 const init = async () => {
@@ -9,7 +8,6 @@ const init = async () => {
     host: Config.server.host,
   });
 
-  registerPluginsFromDirectory(Config.plugins.directory, server);
   server.route(routes);
 
   await server.start();

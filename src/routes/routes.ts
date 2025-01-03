@@ -1,5 +1,5 @@
 import * as Hapi from '@hapi/hapi';
-import Config from "@/config/config";
+import { randomImage } from "@/plugins/image/randomImage";
 export const routes: Array<Hapi.ServerRoute> = [
     {
         method: 'GET',
@@ -7,7 +7,8 @@ export const routes: Array<Hapi.ServerRoute> = [
         handler: (request, h) => {
             return {
                 message: 'Hello, World! 这是首页 此页没有意义',
-                code: 200
+                code: 200,
+                data: null
             };
         }
     },
@@ -15,11 +16,7 @@ export const routes: Array<Hapi.ServerRoute> = [
         method: 'GET',
         path: '/logo',
         handler: (request, h) => {
-            
-            return {
-                message: 'ok',
-                code: 200
-            };
+            return randomImage(request.query.requestType, request.query.number);
         }
     },
     {

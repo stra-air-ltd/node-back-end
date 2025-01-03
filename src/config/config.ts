@@ -8,6 +8,11 @@ interface Config {
         database: string;
         database_type: string;
     };
+    redis: {
+        host: string;
+        port: number;
+        password: string;
+    };
     server: {
         port: number;
         host: string;
@@ -23,14 +28,13 @@ interface Config {
     };
 }
 
-
 const defaultConfig: Config = {
     database: {
-        host: 'localhost',
+        host: '192.168.1.105',
         port: 5432,
-        username: 'postgres',
-        password: 'postgres',
-        database: 'mydb',
+        username: 'postgres_test',
+        password: '6f8Z4K7FQDrr4t8H',
+        database: 'postgres_test',
         database_type:'postgres'
     },
     server: {
@@ -39,8 +43,13 @@ const defaultConfig: Config = {
         domain: 'localhost',
         ssl: false,
     },
+    redis: {
+        host: 'localhost',
+        port: 6379,
+        password: '',
+    },
     plugins: {
-        directory: 'src/plugins',
+        directory: 'plugins',
     },
     logging: {
         level: 'info',

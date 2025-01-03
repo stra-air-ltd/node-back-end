@@ -1,19 +1,31 @@
-import fs from 'fs';
-import path from 'path';
-import Hapi from '@hapi/hapi';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as Hapi from '@hapi/hapi';
+import Config from '../../config/config';
 
-export async function registerPluginsFromDirectory(directory: string, server: Hapi.Server) {
-    const files = fs.readdirSync(directory);
+export default async function LoaderPluginAll(server: Hapi.Server) {
+    const pluginsDirectory: string = "../../" + Config.plugins.directory;
+    const contentsFiles: string[] = fs.readdirSync(pluginsDirectory);
 
-    for (const file of files) {
-        const filePath = path.join(directory, file);
-        const stat = fs.statSync(filePath);
+    let registeredPluginsNumber: number;
+    let fileCount: number;
 
-        if (stat.isDirectory()) {
-            await registerPluginsFromDirectory(filePath, server);
-        } else if (file.endsWith('.js')) {
-            const plugin = require(filePath);
-            await server.register(plugin);
+    registeredPluginsNumber = 0;
+    fileCount = 0;
+
+    console.log('正在注册插件，请稍等...');
+    
+    contentsFiles.forEach((file) => {
+        const filePath:string = path.join(pluginsDirectory, file);
+
+        if (fs.statSync(filePath).isFile()) {
+            fileCount++;
         }
+    });
+
+    for (registeredPluginsNumber; registeredPluginsNumber === fileCount ; registeredPluginsNumber++) {
+        
     }
+
+    console.log(`已注册 ${registeredPluginsNumber} 个插件，共 ${fileCount} 个插件`);
 }
