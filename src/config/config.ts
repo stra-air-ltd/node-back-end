@@ -1,62 +1,13 @@
+import * as fs from 'fs';
+import * as path from 'path';
 
-interface Config {
-    database: {
-        host: string;
-        port: number;
-        username: string;
-        password: string;
-        database: string;
-        database_type: string;
-    };
-    redis: {
-        host: string;
-        port: number;
-        password: string;
-    };
-    server: {
-        port: number;
-        host: string;
-        domain: string;
-        ssl: boolean;
-    };
-    plugins: {
-        directory: string;
-    };
-    logging: {
-        level: string;
-        transports: any[];
-    };
+function loadJsonFile(filePath: string): any {
+    const jsonData = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(jsonData);
 }
 
-const defaultConfig: Config = {
-    database: {
-        host: '192.168.1.105',
-        port: 5432,
-        username: 'postgres',
-        password: '',
-        database: 'postgres',
-        database_type:'postgres'
-    },
-    server: {
-        port: 3000,
-        host: 'localhost',
-        domain: 'localhost',
-        ssl: false,
-    },
-    redis: {
-        host: 'localhost',
-        port: 6379,
-        password: '',
-    },
-    plugins: {
-        directory: 'plugins',
-    },
-    logging: {
-        level: 'info',
-        transports: [
-        ],
-    },
-} as Config;
-
-
-export default defaultConfig;
+export default function Config () {
+    const jsonFilePath = path.join("../../", 'example.json');
+    const parsedData = loadJsonFile(jsonFilePath);
+    return parsedData;
+} ;
