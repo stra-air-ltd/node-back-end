@@ -1,5 +1,4 @@
-import { databaseQusry } from "@/plugins/database/mian";
-import Config from "@/config/config";
+import databaseQusry from "@/plugins/database/mian";
 
 export function randomImage(requestType: boolean, number: number) {
 
@@ -24,7 +23,7 @@ export function randomImage(requestType: boolean, number: number) {
     let requestHeader: string;
     let numberTimes = 0;
 
-    if (Config.server.ssl) {
+    if (process.env.SERVER_SSL === "true") {
         requestHeader = "https";
     } else {
         requestHeader = "http";
@@ -45,10 +44,8 @@ export function randomImage(requestType: boolean, number: number) {
             message: '重定向',
             code: 301,
             data: {
-                url: requestHeader + "://" + Config.server.domain + "/randomImage/" + respond.data[0].src,
+                url: requestHeader + "://" + process.env.SERVER_DOMIAN + "/randomImage/" + respond.data[0].src,
             }
         }
     }
-
-
 }

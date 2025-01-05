@@ -2,8 +2,9 @@ import { createPool } from 'mysql2/promise';
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
 
-export function databaseQusry(sqlSentence: string) {
-    dotenv.config();
+dotenv.config();
+
+export default function databaseQusry(sqlSentence: string) {
     switch (true) {
         case process.env.DATABASE_TYPE === 'mysql':
             const connectMysql = createPool({

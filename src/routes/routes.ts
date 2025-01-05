@@ -1,5 +1,4 @@
 import * as Hapi from '@hapi/hapi';
-import { randomImage } from "@/plugins/image/randomImage";
 export const routes: Array<Hapi.ServerRoute> = [
     {
         method: 'GET',
@@ -16,7 +15,8 @@ export const routes: Array<Hapi.ServerRoute> = [
         method: 'GET',
         path: '/logo',
         handler: (request, h) => {
-            return randomImage(request.query.requestType, request.query.number);
+            const { requestType, number } = request.query;
+            return request.server.methods.randomImage(requestType, number);
         }
     },
     {
