@@ -1,16 +1,17 @@
-import Config from '@/config/config';
 import { createPool } from 'mysql2/promise';
 import { Pool } from 'pg';
+import dotenv from 'dotenv';
 
 export function databaseQusry(sqlSentence: string) {
+    dotenv.config();
     switch (true) {
-        case Config.database.database_type === 'mysql':
+        case process.env.DATABASE_TYPE === 'mysql':
             const connectMysql = createPool({
-                host: Config.database.host,
-                port: Config.database.port,
-                user: Config.database.username,
-                password: Config.database.password,
-                database: Config.database.database
+                host: process.env.DATABASE_HOST,
+                port: process.env.DATABASE_PORT as unknown as number,
+                user: process.env.DATABASE_USERNAME,
+                password: process.env.DATABASE_PASSWORD,
+                database: process.env.DATABASE
             })
             connectMysql.query(sqlSentence)
                 .then(([rows, fields]) => {
@@ -29,13 +30,13 @@ export function databaseQusry(sqlSentence: string) {
                 });
             break;
 
-        case Config.database.database_type ==='postgres':
+        case process.env.DATABASE_TYPE ==='postgres':
             const connectPostgres = new Pool({
-                host: Config.database.host,
-                port: Config.database.port,
-                user: Config.database.username,
-                password: Config.database.password,
-                database: Config.database.database
+                host: process.env.DATABASE_HOST,
+                port: process.env.DATABASE_PORT as unknown as number,
+                user: process.env.DATABASE_USERNAME,
+                password: process.env.DATABASE_PASSWORD,
+                database: process.env.DATABASE
             }); 
             connectPostgres.query(sqlSentence)
                 .then((res) => {
@@ -56,7 +57,7 @@ export function databaseQusry(sqlSentence: string) {
         
         default:
             return {
-                message: '数据库类型错误,请检查配置文件 database_type 字段是否正确',
+                message: '数据库类型错误,请检查配置文件 DATABASE_TYPE 字段是否正确',
                 code: 400,
                 data: null
             }
@@ -71,7 +72,7 @@ export function databaseConnectTest() {
         data: any
     }
 
-    const testRespond = databaseQusry("FROM * `" + Config.database.database + "`") as testRespond;
+    const testRespond = databaseQusry("FROM * `" + process.env.DATABAS_USERNAMEE + "`") as testRespond;
 
     if (testRespond.code === 200) {
         return {
