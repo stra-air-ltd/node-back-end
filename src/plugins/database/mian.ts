@@ -1,91 +1,38 @@
+import Hapi from '@hapi/hapi';
 import { createPool } from 'mysql2/promise';
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
 
-dotenv.config();
-
-export default function databaseQusry(sqlSentence: string) {
-    switch (true) {
-        case process.env.DATABASE_TYPE === 'mysql':
-            const connectMysql = createPool({
-                host: process.env.DATABASE_HOST,
-                port: process.env.DATABASE_PORT as unknown as number,
-                user: process.env.DATABASE_USERNAME,
-                password: process.env.DATABASE_PASSWORD,
-                database: process.env.DATABASE
-            })
-            connectMysql.query(sqlSentence)
-                .then(([rows, fields]) => {
-                    return {
-                        message: '查询成功',
-                        code: 200,
-                        data: rows
-                    }
-                })
-                .catch((err) => {
-                    return {
-                        message: '查询失败' + err, 
-                        code: 400,
-                        data: null
-                    }
+const databasePlugin: Hapi.Plugin<undefined> = {
+    name: 'databasePlugin',
+    version: '1.0.0',
+    register: async (server: Hapi.Server) => {
+        dotenv.config();
+        const databaseType = process.env.DATABASE_TYPE;
+        switch (databaseType) {
+            case 'mysql':
+                const mysqlConnect = createPool({
+                    host: process.env.DATABASE_HOST,
+                    user: process.env.DATABASE_USER,
+                    password: process.env.DATABASE_PASSWORD,
+                    database: process.env.DATABASE_USERNAME,
+                    port: process.env.DATABASE_PORT as unknown as number,
+                    connectionLimit: 10
                 });
             break;
-
-        case process.env.DATABASE_TYPE ==='postgres':
-            const connectPostgres = new Pool({
-                host: process.env.DATABASE_HOST,
-                port: process.env.DATABASE_PORT as unknown as number,
-                user: process.env.DATABASE_USERNAME,
-                password: process.env.DATABASE_PASSWORD,
-                database: process.env.DATABASE
-            }); 
-            connectPostgres.query(sqlSentence)
-                .then((res) => {
-                    return {
-                        message: '查询成功',
-                        code: 200,
-                        data: res.rows
-                    }
-                })
-                .catch((err) => {
-                    return {
-                        message: '查询失败' + err,
-                        code: 400,
-                        data: null
-                    }
+            case 'postgres':
+                const postgresConnect = new Pool({
+                    user: process.env.DATABASE_USER,
+                    host: process.env.DATABASE_HOST,
+                    database: process.env.DATABASE_DATABASE,
+                    password: process.env.DATABASE_PASSWORD,
+                    port: process.env.DATABASE_PORT as unknown as number,
                 });
             break;
-        
-        default:
-            return {
-                message: '数据库类型错误,请检查配置文件 DATABASE_TYPE 字段是否正确',
-                code: 400,
-                data: null
-            }
-            break;
-    }
-}
-
-export function databaseConnectTest() {
-    interface testRespond {
-        message: string,
-        code: number,
-        data: any
-    }
-
-    const testRespond = databaseQusry("FROM * `" + process.env.DATABAS_USERNAMEE + "`") as testRespond;
-
-    if (testRespond.code === 200) {
-        return {
-            message: '数据库连接成功',
-            code: 200,
-            data: null
-        }
-    } else {
-        return {
-            message: '数据库连接失败',
-            code: 400,
-            data: null
+            default:
+                throw new Error('数据库类型错误 请检查 .env 文件的 DATABASE_TYPE 字段是否正确 当前值为: ' + databaseType);
         }
     }
 }
+
+export default databasePlugin;

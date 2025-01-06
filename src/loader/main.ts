@@ -6,7 +6,7 @@ import { plugin } from '@hapi/inert';
 
 async function countFilesInDirectory(directoryPath: string): Promise<number> {
 
-    let fileCount = 0;
+    let Count = 0;
 
     async function traverseDirectory(currentPath: string) {
         const entries = fs.readdirSync(currentPath, { withFileTypes: true });
@@ -17,20 +17,18 @@ async function countFilesInDirectory(directoryPath: string): Promise<number> {
             if (entry.isDirectory()) {
                 await traverseDirectory(fullPath);
             } else if (entry.isFile()) {
-                fileCount++;
+                Count++;
             }
         }
     }
 
     await traverseDirectory(directoryPath);
-    return fileCount;
+    return Count;
 }
 
 export default async function LoaderPluginAll(server: Hapi.Server) {
     dotenv.config();
     const pluginsDirectory: string = process.env.PLUGINS_DIRECTORY as string;
-    const contentsFiles: string[] = fs.readdirSync(pluginsDirectory);
-    const entries = fs.readdirSync(pluginsDirectory, { withFileTypes: true });
 
     let registeredPluginsNumber: number = 0;
     let fileCount: number = 0;
@@ -38,8 +36,9 @@ export default async function LoaderPluginAll(server: Hapi.Server) {
     console.log('正在注册插件，请稍等...');
 
     countFilesInDirectory(pluginsDirectory)
-    .then(fileCount => {
-        console.log(`在 ${pluginsDirectory} 下有 ${fileCount} 个文件`);
+    .then(Count => {
+        fileCount = Count;
+        console.log(`在 ${pluginsDirectory} 下有 ${Count} 个文件`);
     })
     .catch(err => {
         console.error(`读取目录失败:`, err);
@@ -54,9 +53,9 @@ export default async function LoaderPluginAll(server: Hapi.Server) {
             if (entry.isDirectory()) {
                 await loaderPlugin(fullPath);
             } else if (entry.isFile()) {
-
-                const plugin = require(fullPath).default;
-
+                const pluginPath = path.resolve(fullPath);
+                let plugin = require(pluginPath).default;
+                
                 try {
                     await server.register(plugin);
                     registeredPluginsNumber++;
@@ -74,6 +73,6 @@ export default async function LoaderPluginAll(server: Hapi.Server) {
             }
         }
     }
-
+    await loaderPlugin(pluginsDirectory);
     console.log(`已注册 ${registeredPluginsNumber} 个插件，共 ${fileCount} 个插件`);
 }

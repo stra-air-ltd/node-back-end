@@ -1,6 +1,6 @@
-import databaseQusry from "@/plugins/database/mian";
+/* import databaseQusry from "@/plugins/database/mian";
 
-export function randomImage(requestType: boolean, number: number) {
+function randomImage(requestType: boolean, number: number) {
 
     interface respondMaxId {
         message: string,
@@ -49,3 +49,5 @@ export function randomImage(requestType: boolean, number: number) {
         }
     }
 }
+
+export default randomImage; */
