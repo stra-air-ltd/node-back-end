@@ -1,17 +1,18 @@
 import Hapi from '@hapi/hapi';
 import { routes } from './routes/routes';
-import { registerPluginsFromDirectory } from './plugins/loader/main';
-import Config from './config/config';
+import LoaderPluginAll from './loader/main';  
+import * as dotenv from 'dotenv';
 
+dotenv.config();
 const init = async () => {
+  
   const server = Hapi.server({
-    port: Config.server.port,
-    host: Config.server.host,
+    port: process.env.SERVER_PORT,
+    host: process.env.SERVER_HOST,
   });
 
-  registerPluginsFromDirectory(Config.plugins.directory, server);
   server.route(routes);
-
+  await LoaderPluginAll(server)
   await server.start();
   console.log(`Server running on ${server.info.uri}`);
 };

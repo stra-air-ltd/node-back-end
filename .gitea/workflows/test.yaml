@@ -36,7 +36,8 @@ jobs:
           echo "🔎 你的分支名称是${{ gitea.ref }}，你的仓库是${{ gitea.repository }}。"
       - name: 检出仓库代码
         uses: https://gitea.com/actions/checkout@v4
-      - run: echo "💡 ${{ gitea.repository }}仓库已克隆到运行器。"
+      - name: 任务准备
+        run: echo "💡 ${{ gitea.repository }}仓库已克隆到运行器。" 
       - run: echo "🖥️ 工作流现在准备在运行器上测试你的代码。"
       - name: 列出仓库中的文件
         run: |
