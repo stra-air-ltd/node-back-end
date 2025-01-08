@@ -21,7 +21,6 @@ const randomImagePlugin: Hapi.Plugin<undefined> = {
             let randomId = getRandomInt();
             let sqlRequest = await server.methods.databaseQuery(`SELECT src FROM random_image WHERE id = ${randomId}`);
             let requestURL = sqlRequest[0][0].src;
-            console.log(requestURL);
             switch (true) {
                 case requestType === 'json':
                     message = 'ok';

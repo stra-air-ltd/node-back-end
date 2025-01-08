@@ -19,7 +19,7 @@ node-bbs后端模块是一个基于Node.js的API系统，旨在为星空伟奕�
 - Node.js：高性能的JavaScript运行时，用于构建快速、可扩展的网络应用。
 - Hapi.js：强大的Node.js框架，提供丰富的插件和中间件支持。
 - TypeScript：增强JavaScript的类型系统，提高代码的可读性和可维护性。
-- MongoDB：NoSQL数据库，提供高效的数据存储和查询能力。
+- Mysql/PostgreSQL: 提供高可用的数据库服务
 - Redis：内存数据结构存储，用于缓存和消息队列。
 
 ### 安装和使用
