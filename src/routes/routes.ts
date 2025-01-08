@@ -12,14 +12,6 @@ export const routes: Array<Hapi.ServerRoute> = [
         }
     },
     {
-        method: 'GET',
-        path: '/logo',
-        handler: (request, h) => {
-            const { requestType, number } = request.query;
-            return request.server.methods.randomImage(requestType, number);
-        }
-    },
-    {
         method: 'POST',
         path: '/users',
         handler: (request, h) => {

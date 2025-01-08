@@ -4,6 +4,8 @@ import * as Hapi from '@hapi/hapi';
 import * as dotenv from 'dotenv';
 import { plugin } from '@hapi/inert';
 
+let numberTimes = 0;
+
 async function countFilesInDirectory(directoryPath: string): Promise<number> {
 
     let Count = 0;
@@ -35,10 +37,10 @@ export default async function LoaderPluginAll(server: Hapi.Server) {
 
     console.log('正在注册插件，请稍等...');
 
-    countFilesInDirectory(pluginsDirectory)
+    await countFilesInDirectory(pluginsDirectory)
     .then(Count => {
         fileCount = Count;
-        console.log(`在 ${pluginsDirectory} 下有 ${Count} 个文件`);
+        console.log(`在 ${pluginsDirectory} 下有 ${Count} 个插件`);
     })
     .catch(err => {
         console.error(`读取目录失败:`, err);
@@ -63,13 +65,15 @@ export default async function LoaderPluginAll(server: Hapi.Server) {
                 } catch (err) {
                     console.error(`插件 ${fullPath} 注册失败:`, err);
                 }
-
-                registeredPluginsNumber++;
             }
 
             if (registeredPluginsNumber === fileCount) {
-                console.log('注册插件数目已达到文件数目，注册结束');
-                break;
+            //    console.log(`已注册插件数达到文件数量，停止注册`);
+            //    break;
+            }
+
+            if (numberTimes === 0) {
+                numberTimes++;
             }
         }
     }
