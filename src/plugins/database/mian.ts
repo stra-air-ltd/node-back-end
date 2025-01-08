@@ -1,6 +1,6 @@
 import Hapi from '@hapi/hapi';
-import { createPool } from 'mysql2/promise';
-import { Pool } from 'pg';
+import { createPool, Pool } from 'mysql2/promise';
+import { Pool as pgPool } from 'pg';
 import dotenv from 'dotenv';
 
 const databasePlugin: Hapi.Plugin<undefined> = {
@@ -8,31 +8,37 @@ const databasePlugin: Hapi.Plugin<undefined> = {
     version: '1.0.0',
     register: async (server: Hapi.Server) => {
         dotenv.config();
+        let CreateMySqlConnect: Pool | undefined;
+        let createPostgresConnect: pgPool | undefined;
         const databaseType = process.env.DATABASE_TYPE;
         const port: number = process.env.DATABASE_PORT as unknown as number;
         async function mysqlConnect() {
-            const mysqlConnect = createPool({
-                host: process.env.DATABASE_HOST,
-                user: process.env.DATABASE_USERNAME,
-                password: process.env.DATABASE_PASSWORD,
-                database: process.env.DATABASE_NAME,
-                port: port,
-                connectionLimit: 10
-            });
+            if (CreateMySqlConnect === undefined) {
+                CreateMySqlConnect = createPool({
+                    host: process.env.DATABASE_HOST,
+                    user: process.env.DATABASE_USERNAME,
+                    password: process.env.DATABASE_PASSWORD,
+                    database: process.env.DATABASE_NAME,
+                    port: port,
+                    connectionLimit: 10
+                });
+            }
 
-            return mysqlConnect;
+            return CreateMySqlConnect;
         }
 
         async function postgresConnect() {
-            const postgresConnect = new Pool({
-                user: process.env.DATABASE_USERNAME,
-                host: process.env.DATABASE_HOST,
-                database: process.env.DATABASE_NAME,
-                password: process.env.DATABASE_PASSWORD,
-                port: port,
-            });
-
-            return postgresConnect;
+            if (createPostgresConnect === undefined) {
+                createPostgresConnect = new pgPool({
+                    user: process.env.DATABASE_USERNAME,
+                    host: process.env.DATABASE_HOST,
+                    database: process.env.DATABASE_NAME,
+                    password: process.env.DATABASE_PASSWORD,
+                    port: port,
+                });
+            }
+            
+            return createPostgresConnect;
         }
         server.method('databaseQuery', async (sql: string) => {
             let queryResult;
