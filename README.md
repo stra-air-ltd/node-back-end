@@ -41,7 +41,7 @@ node-bbs后端模块是一个基于Node.js的API系统，旨在为星空伟奕�
 
 4. 启动开发服务器：
     ```sh
-    npm run dev
+    npm run test
     ```
 
 5. 构建和启动生产服务器：
