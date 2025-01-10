@@ -9,7 +9,7 @@
     "start": "node dist/server.js"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@hapi/hapi": "^21.3.12",
     "@hapi/inert": "^7.1.0",
