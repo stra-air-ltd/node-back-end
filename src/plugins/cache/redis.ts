@@ -82,9 +82,7 @@ const redisPlugin: Hapi.Plugin<undefined> = {
             }
 
             try {
-                console.log(`[Redis] 执行查询: ${queryStatement}`);
                 const result = await redisClient.get(queryStatement);
-                console.log(`[Redis] 查询结果: ${result}`);
                 return {
                     code: 200,
                     message: '查询成功',

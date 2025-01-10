@@ -9,38 +9,80 @@ const randomImagePlugin: Hapi.Plugin<undefined> = {
     name: 'randomImagePlugin',
     version: '1.0.0',
     register: async (server: Hapi.Server) => {
-        
+
         /**
+         * user: <pysio>team@pysio.online & <maomao>official@nerv.games
          * 获取图片数据库中的最大ID
          * 优先从Redis缓存获取，缓存未命中则查询数据库
          * @returns {Promise<number>} 返回最大ID值
          */
         async function getMaxId(): Promise<number> {
             try {
-                // 尝试从 Redis 获取 maxId
-                console.log('[RandomImage] 尝试从Redis获取maxId');
-                const redisResult = await server.methods.redisQuery("maxId");
+                const redisResult = await server.methods.redisQuery("GET maxId");
                 
+                // 优先使用缓存的maxId
                 if (redisResult.code === 200 && redisResult.data !== null) {
-                    console.log('[RandomImage] Redis缓存命中, maxId =', redisResult.data);
-                    return parseInt(redisResult.data);
+                    const maxId = parseInt(redisResult.data);
+                    return maxId;
                 }
 
-                console.log('[RandomImage] Redis缓存未命中，从数据库查询');
-                // Redis 未命中或出错，从数据库查询
+                // 缓存未命中，查询数据库并长期缓存
                 const maxIdQueryResult = await server.methods.databaseQuery('SELECT MAX(id) as maxId FROM random_image');
+                
+                if (!maxIdQueryResult?.[0]?.[0]?.maxId) {
+                    throw new Error('数据库查询结果无效');
+                }
+                
                 const maxId = maxIdQueryResult[0][0].maxId;
 
-                // 存入 Redis 并设置过期时间
-                if (redisResult.code === 400) {
-                    console.log('[RandomImage] 将新的maxId存入Redis:', maxId);
-                    await server.methods.redisQuery(`SET maxId ${maxId}`);
-                    await server.methods.redisQuery(`EXPIRE maxId 10`);
+                // 设置较长的缓存时间（24小时）
+                if (redisResult.code === 200) {
+                    await server.methods.redisQuery(`SETEX maxId 10 "${maxId}"`);
                 }
 
                 return maxId;
-            } catch (error) {
-                console.error('[RandomImage] 获取maxId失败:', error);
+            } catch (error: any) {
+                console.log(['error', 'cache'], `[RandomImage] 获取maxId失败: ${error?.message || '未知错误'}`);
+                throw error;
+            }
+        }
+
+        /**
+         * user: <maomao>official@nerv.games
+         * 获取图片
+         * @param id: number 图片id
+         * @returns  {Promise<string>} 返回最大ID值
+         */
+
+        async function getRandomImageUrl(id: number): Promise<string> {
+            try {
+                const cacheKey = `random_image_${id}`;
+                
+                // 尝试从缓存获取
+                const redisResult = await server.methods.redisQuery(`GET ${cacheKey}`);
+                
+                if (redisResult.code === 200 && redisResult.data !== null) {
+                    return redisResult.data;
+                }
+
+                // 缓存未命中，查询数据库
+                const IdQueryResult = await server.methods.databaseQuery(`SELECT src FROM random_image WHERE id = ${id}`);
+                
+                if (!IdQueryResult?.[0]?.[0]?.src) {
+                    throw new Error(`未找到ID ${id} 对应的图片`);
+                }
+
+                const url = IdQueryResult[0][0].src;
+
+                // 永久缓存URL（除非手动清除）
+                if (redisResult.code === 200 && url) {
+                    await server.methods.redisQuery(`SET ${cacheKey} "${url}"`);
+                    await server.methods.redisQuery(`SETEX ${cacheKey} 3600`)
+                }
+
+                return url;
+            } catch (error: any) {
+                console.log(['error', 'cache'], `[RandomImage] 获取图片URL失败, id: ${id}: ${error?.message || '未知错误'}`);
                 throw error;
             }
         }
@@ -67,8 +109,8 @@ const randomImagePlugin: Hapi.Plugin<undefined> = {
             try {
                 const max = await getMaxId();
                 const randomId = getRandomInt(0, max);
-                const sqlRequest = await server.methods.databaseQuery(`SELECT src FROM random_image WHERE id = ${randomId}`);
-                const requestURL = sqlRequest[0][0].src;
+                const requestURL = await getRandomImageUrl(randomId);
+                console.log(['info', 'request'], `[RandomImage] 生成随机图片URL: ${requestURL}`);
 
                 switch (requestType) {
                     case 'json':
@@ -86,11 +128,13 @@ const randomImagePlugin: Hapi.Plugin<undefined> = {
                             data: null
                         };
                 }
-            } catch (error) {
+            } catch (error: any) {
+                console.log(['error', 'request'], `[RandomImage] 处理请求失败: ${error?.message || '未知错误'}`);
                 return {
                     message: '服务器内部错误',
                     code: 500,
-                    data: null
+                    data: null,
+                    error: error?.message || '未知错误'
                 };
             }
         }
