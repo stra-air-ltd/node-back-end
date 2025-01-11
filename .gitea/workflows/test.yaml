@@ -46,7 +46,7 @@ jobs:
         run: 
           sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories;
           apk add nodejs;
-          apk add npm
+          apk add npm;
           npm config set registry https://registry.npmmirror.com;
           npm install;
       - name: 编译代码
