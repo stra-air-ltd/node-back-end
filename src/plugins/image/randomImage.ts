@@ -110,7 +110,6 @@ const randomImagePlugin: Hapi.Plugin<undefined> = {
                 const max = await getMaxId();
                 const randomId = getRandomInt(0, max);
                 const requestURL = await getRandomImageUrl(randomId);
-                console.log(['info', 'request'], `[RandomImage] 生成随机图片URL: ${requestURL}`);
 
                 switch (requestType) {
                     case 'json':
