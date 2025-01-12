@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   bulid-Actions:
-    runs-on: <runner_labels>
+    runs-on: alpine
     steps:
       - name: 唤醒机魂
         run:
@@ -44,10 +44,13 @@ jobs:
           ls ${{ gitea.workspace }}
       - name: 安装依赖
         run: 
+          sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories;
+          apk add nodejs;
+          apk add npm;
           npm config set registry https://registry.npmmirror.com;
           npm install;
       - name: 编译代码
         run:
-          npx tsc
+          npm run build
       - name: 当前任务状态
         run: echo "🍏 该任务的状态是${{ job.status }}。"
