@@ -11,12 +11,4 @@ export const routes: Array<Hapi.ServerRoute> = [
             };
         }
     },
-    {
-        method: 'POST',
-        path: '/users',
-        handler: (request, h) => {
-            const payload = request.payload as { name: string, age: number };
-            return `Created user: ${payload.name}, Age: ${payload.age}`;
-        }
-    }
 ];
