@@ -11,7 +11,7 @@ const init = async () => {
     host: process.env.SERVER_HOST,
   });
 
-  server.route(routes);
+  server.route(routes(server));
   await LoaderPluginAll(server)
   await server.start();
   console.log(`Server running on ${server.info.uri}`);

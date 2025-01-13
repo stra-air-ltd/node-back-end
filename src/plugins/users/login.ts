@@ -11,6 +11,8 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
     name: 'userLoginPlugin',
     version: '1.0.0',
     register: async (server: Hapi.Server) => {
+
+
         /**
          * 计算输入的字符串为sha256并返回
          * @param inputString 要计算为sha256的字符串
@@ -145,7 +147,7 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
                             code: 200,
                             message: '登陆成功',
                             data: {
-                                token: null,
+                                token: await server.methods.obtainUserToken(),
                             }
                         };
                     } else {
