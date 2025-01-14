@@ -12,7 +12,45 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
     version: '1.0.0',
     register: async (server: Hapi.Server) => {
 
+        async function getUserId(type: string, userInput: string) {
+            switch (type) {
+                case 'userName':
+                    const userNameRedisResult = await server.methods.redisQuery(`GET user_name_${userInput}`);
+                    
+                    if (userNameRedisResult.data !== null) {
+                        return userNameRedisResult.data;
+                    }
 
+                    const userNameDatabaseResult = await server.methods.databaseQuery(`SELECT id FORM users WHERE user_name = ${userInput}`);
+
+                    if (userNameDatabaseResult[0][0].id !== null && userNameRedisResult.code === 200) {
+                        await server.methods.redisQuery(`SET user_name_${userInput} ${userNameDatabaseResult[0][0].id}`);
+                        await server.methods.redisQuery(`SETEX user_name_${userInput} 3600`);
+                    }
+                    
+                    return userNameDatabaseResult[0][0].id as number;
+
+                case 'userMail':
+                    const userMailRedisResult = await server.methods.redisQuery(`GET user_mail_${userInput}`);
+
+                    if (userMailRedisResult.data !== null) {
+                        return userMailRedisResult.data;
+                    }
+
+                    const userMailDatabaseResult = await server.methods.databaseQuery(`SELECT id FORM users WHERE user_mail = ${userInput}`);
+
+                    if (userMailDatabaseResult[0][0].id !== null && userMailRedisResult.code === 200) {
+                        await server.methods.redisQuery(`SET user_name_${userInput} ${userMailDatabaseResult[0][0].id}`);
+                        await server.methods.redisQuery(`SETEX user_name_${userInput} 3600`);
+                    }
+                    
+                    return userMailDatabaseResult[0][0].id as number;
+                
+                default:
+                    break;
+            }
+        }
+        
         /**
          * 计算输入的字符串为sha256并返回
          * @param inputString 要计算为sha256的字符串
@@ -21,7 +59,6 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
         async function stringSha256Count(inputString: string): Promise<string> {
             return crypto.createHash('sha256').update(inputString).digest('hex');
         }
-
         /**
          * 测试输入的用户名与密码能否登陆
          * @param userName 
@@ -30,24 +67,25 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
          */
         async function userLoginWayPssswordOrUserName(userName: string, userPassword: string): Promise<boolean> {
             try {
+                const userId = await getUserId('userName', userName)
                 const userPasswordHash256 = await stringSha256Count(userPassword);
-                const redisResult = await server.methods.redisQuery(`GET user_name_${userName}`);
-
+                const redisResult = await server.methods.redisQuery(`GET user_password_id_${userId}`);
+                
                 if (redisResult.code === 200 && redisResult.data !== null) {
                     return userPasswordHash256 === redisResult.data;
                 }
 
-                const databaseUserResult = await server.methods.databaseQuery(`SELECT user_name FORM users WHERE user_name = ${userName}`);
+                const databaseUserResult = await server.methods.databaseQuery(`SELECT user_id FORM users WHERE user_id = ${userId}`);
 
-                if (databaseUserResult[0][0].user_name === null) {
+                if (databaseUserResult[0][0].user_id === null) {
                     return false;
                 }
 
-                const databaseResult = await server.methods.databaseQuery(`SELECT user_password FROM users WHERE user_name = ${userName}`);
+                const databaseResult = await server.methods.databaseQuery(`SELECT user_password FROM users WHERE user_id = ${userId}`);
                 
                 if (redisResult.code === 200 && userPasswordHash256 === databaseResult[0][0].user_password) {
-                    await server.methods.redisQuery(`SET user_name_${userName} ${userPasswordHash256}`)
-                    await server.methods.redisQuery(`SETEX user_name_${userName} 3600`)
+                    await server.methods.redisQuery(`SET user_password_id_${userId} ${userPasswordHash256}`)
+                    await server.methods.redisQuery(`SETEX user_password_id_${userId} 3600`)
                     return true;
                 }
 

@@ -4,7 +4,6 @@
  * 使用Redis缓存优化性能
  */
 import Hapi from '@hapi/hapi';
-import { ResponseObject } from 'hapi';
 
 const randomImagePlugin: Hapi.Plugin<undefined> = {
     name: 'randomImagePlugin',
@@ -36,7 +35,7 @@ const randomImagePlugin: Hapi.Plugin<undefined> = {
                 
                 const maxId = maxIdQueryResult[0][0].maxId;
 
-                // 设置较长的缓存时间（24小时）
+	                // 设置较长的缓存时间（24小时）
                 if (redisResult.code === 200) {
                     await server.methods.redisQuery(`SETEX maxId 10 "${maxId}"`);
                 }
@@ -75,7 +74,7 @@ const randomImagePlugin: Hapi.Plugin<undefined> = {
 
                 const url = IdQueryResult[0][0].src;
 
-                // 永久缓存URL（除非手动清除）
+	                // 永久缓存URL（除非手动清除）
                 if (redisResult.code === 200 && url) {
                     await server.methods.redisQuery(`SET ${cacheKey} "${url}"`);
                     await server.methods.redisQuery(`SETEX ${cacheKey} 3600`)
@@ -106,7 +105,7 @@ const randomImagePlugin: Hapi.Plugin<undefined> = {
          * @param h - Hapi响应工具包
          * @returns {Promise<Object|ResponseObject>} 返回JSON数据或重定向响应
          */
-        async function randomImage(requestType: string, h: Hapi.ResponseToolkit): Promise<object | ResponseObject> {
+        async function randomImage(requestType: string, h: Hapi.ResponseToolkit) {
             try {
                 const max = await getMaxId();
                 const randomId = getRandomInt(0, max);
