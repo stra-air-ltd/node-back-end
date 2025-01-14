@@ -12,6 +12,19 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
     version: '1.0.0',
     register: async (server: Hapi.Server) => {
 
+        /**
+         * 根据提供的类型和用户输入检索用户ID。
+         * 
+         * @param {string} type - 用户输入的类型，可以是 'userName' 或 'userMail'。
+         * @param {string} userInput - 要查询的用户输入值。
+         * @returns {Promise<number>} - 与提供的输入相关联的用户ID。
+         * 
+         * @throws {Error} - 如果类型不是 'userName' 或 'userMail'，则抛出错误。
+         * 
+         * @author maomao
+         * @contact official@nerv.games
+         * @lastModified 2025/1/14 GMT+8 22:59
+         */
         async function getUserId(type: string, userInput: string) {
             switch (type) {
                 case 'userName':
@@ -50,27 +63,18 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
                     break;
             }
         }
-        
+
         /**
-         * 计算输入的字符串为sha256并返回
-         * @param inputString 要计算为sha256的字符串
-         * @returns 返回字符串HASH256计算结果
-         */
-        async function stringSha256Count(inputString: string): Promise<string> {
-            return crypto.createHash('sha256').update(inputString).digest('hex');
-        }
-        /**
-         * 测试输入的用户名与密码能否登陆
-         * @param userName 
+         * 测试输入的用户id与密码能否登陆
+         * @param userid
          * @param userPassword 
          * @returns boolean 
          */
-        async function userLoginWayPssswordOrUserName(userName: string, userPassword: string): Promise<boolean> {
+        async function userLoginWayPssswordOrId(userId: string, userPassword: string): Promise<boolean> {
             try {
-                const userId = await getUserId('userName', userName)
                 const userPasswordHash256 = await stringSha256Count(userPassword);
-                const redisResult = await server.methods.redisQuery(`GET user_password_id_${userId}`);
-                
+                const redisResult = await server.methods.redisQuery(`GET user_id_password_${userId}`);
+
                 if (redisResult.code === 200 && redisResult.data !== null) {
                     return userPasswordHash256 === redisResult.data;
                 }
@@ -82,14 +86,38 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
                 }
 
                 const databaseResult = await server.methods.databaseQuery(`SELECT user_password FROM users WHERE user_id = ${userId}`);
-                
+
                 if (redisResult.code === 200 && userPasswordHash256 === databaseResult[0][0].user_password) {
-                    await server.methods.redisQuery(`SET user_password_id_${userId} ${userPasswordHash256}`)
-                    await server.methods.redisQuery(`SETEX user_password_id_${userId} 3600`)
+                    await server.methods.redisQuery(`SET user_id_password_${userId} ${userPasswordHash256}`)
+                    await server.methods.redisQuery(`SETEX user_id_password_${userId} 3600`)
                     return true;
                 }
 
                 return false;
+            } catch (error) {
+                console.error('[userLogin] 出现错误,信息为', error);
+                throw error;
+            }
+        }
+        /**
+         * 计算输入的字符串为sha256并返回
+         * @param inputString 要计算为sha256的字符串
+         * @returns 返回字符串HASH256计算结果
+         */
+        async function stringSha256Count(inputString: string): Promise<string> {
+            return crypto.createHash('sha256').update(inputString).digest('hex');
+        }
+
+        /**
+         * 测试输入的用户名与密码能否登陆
+         * @param userName 
+         * @param userPassword 
+         * @returns boolean 
+         */
+        async function userLoginWayPssswordOrUserName(userName: string, userPassword: string): Promise<boolean> {
+            try {
+                const userId = await getUserId('userName', userName)
+                return userLoginWayPssswordOrId(userId, userPassword);
             } catch(error) {
                 console.error('[userLogin] 登陆方式username, password。错误信息:', error);
                 throw error;
@@ -104,74 +132,21 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
          */
         async function userLoginWayPssswordOrMail(userMail: string, userPassword: string): Promise<boolean> {
             try {
-                const userPasswordHash256 = await stringSha256Count(userPassword);
-                const redisResult = await server.methods.redisQuery(`GET user_mali_${userMail}`);
-
-                if (redisResult.code === 200 && redisResult.data !== null) {
-                    return userPasswordHash256 === redisResult.data;
-                }
-
-                const databaseUserResult = await server.methods.databaseQuery(`SELECT user_mail FORM users WHERE user_mail = ${userMail}`);
-
-                if (databaseUserResult[0][0].user_mail === null) {
-                    return false;
-                }
-
-                const databaseResult = await server.methods.databaseQuery(`SELECT user_password FROM users WHERE user_mail = ${userMail}`);
-                
-                if (redisResult.code === 200 && userPasswordHash256 === databaseResult[0][0].user_password) {
-                    await server.methods.redisQuery(`SET user_mali_${userMail} ${userPasswordHash256}`)
-                    await server.methods.redisQuery(`SETEX user_mail_${userMail} 3600`)
-                    return true;
-                }
-
-                return false;
+                const userId = await getUserId('userMail', userMail)
+                return userLoginWayPssswordOrId(userId, userPassword);
             } catch(error) {
                 console.error('[userLogin] 出现错误,信息为', error);
                 throw error;
             }
         }
 
-        /**
-         * 测试输入的用户id与密码能否登陆
-         * @param userid
-         * @param userPassword 
-         * @returns boolean 
-         */
-        async function userLoginWayPssswordOrId(userId: string, userPassword: string): Promise<boolean> {
-            try {
-                const userPasswordHash256 = await stringSha256Count(userPassword);
-                const redisResult = await server.methods.redisQuery(`GET user_id_${userId}`);
 
-                if (redisResult.code === 200 && redisResult.data !== null) {
-                    return userPasswordHash256 === redisResult.data;
-                }
-
-                const databaseUserResult = await server.methods.databaseQuery(`SELECT user_id FORM users WHERE user_id = ${userId}`);
-
-                if (databaseUserResult[0][0].user_id === null) {
-                    return false;
-                }
-
-                const databaseResult = await server.methods.databaseQuery(`SELECT user_password FROM users WHERE user_id = ${userId}`);
-                
-                if (redisResult.code === 200 && userPasswordHash256 === databaseResult[0][0].user_password) {
-                    await server.methods.redisQuery(`SET user_id_${userId} ${userPasswordHash256}`)
-                    await server.methods.redisQuery(`SETEX user_id_${userId} 3600`)
-                    return true;
-                }
-
-                return false;
-            } catch(error) {
-                console.error('[userLogin] 出现错误,信息为', error);
-                throw error;
-            }
-        }
+        
         /**
          * 处理传入的登陆类型
          * @param requestUserLoginWay 
          */
-        async function loginResult(requestUserLoginWay: string, requestUserPassword: string, requestUserName?: string, requestUserId?: string, requestUserMail?: string) {
+        async function loginResult(requestUserLoginWay: string, requestUserInput: string, requestUserPassword: string) {
             interface request {
                 code: number,
                 message: string,
@@ -180,12 +155,12 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
             let request: request;
             switch (requestUserLoginWay) {
                 case 'userNameOrPassword':
-                    if (await userLoginWayPssswordOrUserName(requestUserName as string, requestUserPassword)) {
+                    if (await userLoginWayPssswordOrUserName(requestUserInput, requestUserPassword)) {
                         request = {
                             code: 200,
                             message: '登陆成功',
                             data: {
-                                token: await server.methods.obtainUserToken(),
+                                token: await server.methods.obtainUserToken(getUserId('userName', requestUserInput)),
                             }
                         };
                     } else {
@@ -197,12 +172,12 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
                     }
                     break;
                 case 'userMailOrPassword':
-                    if (await userLoginWayPssswordOrMail(requestUserMail as string, requestUserPassword)) {
+                    if (await userLoginWayPssswordOrMail(requestUserInput, requestUserPassword)) {
                         request = {
                             code: 200,
                             message: '登陆成功',
                             data: {
-                                token: null,
+                                token: await server.methods.obtainUserToken(getUserId('userMail', requestUserInput)),
                             }
                         };
                     } else {
@@ -214,12 +189,12 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
                     }
                     break
                 case 'userIdOrPsssword':
-                    if (await userLoginWayPssswordOrId(requestUserId as string, requestUserPassword)) {
+                    if (await userLoginWayPssswordOrId(requestUserInput, requestUserPassword)) {
                         request = {
                             code: 200,
                             message: '登陆成功',
                             data: {
-                                token: null,
+                                token: await server.methods.obtainUserToken(getUserId('userMail', requestUserInput)),
                             }
                         };
                     } else {
@@ -236,10 +211,16 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
         }
         server.route({
             method: 'POST',
-            path: '/login',
+            path: '/user/login',
             handler: async (request, h) => {
-                // Your login logic here
-                return h.response({ message: 'Login successful' }).code(200);
+                
+                interface LoginPayload {
+                    loginWay: string;
+                    userInput: string;
+                    userPassword: string;
+                }
+                const { loginWay, userInput, userPassword } = request.payload as LoginPayload;
+                return loginResult(loginWay, userInput, userPassword);
             }
         });
     }
