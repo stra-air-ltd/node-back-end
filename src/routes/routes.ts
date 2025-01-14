@@ -15,10 +15,36 @@ export const routes = (server: Hapi.Server): Array<Hapi.ServerRoute> => [
         }
     },
     {
+        method: 'GET',
+        path: '/randomImage',
+        handler: (request, h) => {
+            return server.methods.randomImage(request.query.requestType, h);
+        }
+    },
+    {
+        method: 'POST',
+        path: '/user/login',
+        handler: async (request, h) => {
+            
+            interface LoginPayload {
+                loginWay: string;
+                userInput: string;
+                userPassword: string;
+            }
+            const { loginWay, userInput, userPassword } = request.payload as LoginPayload;
+            return server.methods.loginResult(loginWay, userInput, userPassword);
+        }
+    },
+    {
         method: 'POST',
         path: '/user/token/verify',
         handler: (request, h) => {
-            return server.methods.verifyUserToken(request.query.userId, request.query.userToken);
+            interface LoginPayload {
+                userId: string;
+                userToken: string;
+            }
+            const { userId, userToken } = request.payload as LoginPayload;
+            return server.methods.verifyUserToken(userId, userToken);
         }
     },
 ];

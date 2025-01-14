@@ -105,7 +105,7 @@ const randomImagePlugin: Hapi.Plugin<undefined> = {
          * @param h - Hapi响应工具包
          * @returns {Promise<Object|ResponseObject>} 返回JSON数据或重定向响应
          */
-        async function randomImage(requestType: string, h: Hapi.ResponseToolkit) {
+        server.method('obtainUserToken', async (requestType: string, h: Hapi.ResponseToolkit) => {
             try {
                 const max = await getMaxId();
                 const randomId = getRandomInt(0, max);
@@ -135,15 +135,6 @@ const randomImagePlugin: Hapi.Plugin<undefined> = {
                     data: null,
                     error: error?.message || '未知错误'
                 };
-            }
-        }
-
-        // 注册路由
-        server.route({
-            method: 'GET',
-            path: '/randomImage',
-            handler: (request, h) => {
-                return randomImage(request.query.requestType, h);
             }
         });
     }

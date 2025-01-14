@@ -146,7 +146,7 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
          * 处理传入的登陆类型
          * @param requestUserLoginWay 
          */
-        async function loginResult(requestUserLoginWay: string, requestUserInput: string, requestUserPassword: string) {
+        server.method('loginResult', async (requestUserLoginWay: string, requestUserInput: string, requestUserPassword: string) => {
             interface request {
                 code: number,
                 message: string,
@@ -207,20 +207,6 @@ const userLoginPlugin: Hapi.Plugin<undefined> = {
                     break;
                 default:
                     break;
-            }
-        }
-        server.route({
-            method: 'POST',
-            path: '/user/login',
-            handler: async (request, h) => {
-                
-                interface LoginPayload {
-                    loginWay: string;
-                    userInput: string;
-                    userPassword: string;
-                }
-                const { loginWay, userInput, userPassword } = request.payload as LoginPayload;
-                return loginResult(loginWay, userInput, userPassword);
             }
         });
     }

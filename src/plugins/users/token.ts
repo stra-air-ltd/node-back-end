@@ -1,7 +1,5 @@
 import Hapi from '@hapi/hapi';
 import crypto from 'crypto';
-import Redis from 'ioredis';
-import { DatabaseError } from 'pg';
 
 /**
  * Hapi 插件，用于管理用户令牌的分发、更新、注销和验证。
@@ -60,7 +58,7 @@ const userTokenDistribute: Hapi.Plugin<undefined> = {
         async function obtainUserToken (id:number) {
             const redisResult = await server.methods.redisQuery(`GET user_${id}_token`);
             
-            if (redisResult.data !== null && redisResult.code == 200) {
+            if (redisResult.data !== null && redisResult.code === 200) {
                 request = {
                     code: 200,
                     message: '获取token成功',
@@ -73,7 +71,11 @@ const userTokenDistribute: Hapi.Plugin<undefined> = {
 
             const databaseResult = await server.methods.databaseQuery(`SELECT token, enable_status FROM users_token WHERE id = ${id}`);
 
-            if (databaseResult[0][0].enable_status === 'true' && databaseResult[0][0].token !== null) {
+            if (databaseResult[0][0].enable_status === 'false') {
+                await server.methods.databaseQuery(`UPDATE SET 'enable_status'='true' WHERE id = ${id}`);
+            }
+
+            if (databaseResult[0][0].token !== null) {
                 request = {
                     code: 200,
                     message: '获取token成功',
@@ -85,7 +87,7 @@ const userTokenDistribute: Hapi.Plugin<undefined> = {
             } else {
                 request = {
                     code: 404,
-                    message: '您请求的user的token已经注销或者user不存在',
+                    message: '您请求的user不存在',
                     data: null
                 }
                 return request;
@@ -103,6 +105,7 @@ const userTokenDistribute: Hapi.Plugin<undefined> = {
          * 然后将该哈希值存储在 Redis 中，并设置过期时间为 604800 秒（7 天）。
          * 最后，将新令牌更新到数据库中，并返回包含状态码、消息和新令牌数据的对象。
          */
+
         async function updateUserToken (id: number) {
             const randomString = crypto.randomBytes(512).toString('hex').slice(0, length);
             const tokenHash256 = crypto.createHash('sha256').update(randomString).digest('hex');
