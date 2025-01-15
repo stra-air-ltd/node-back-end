@@ -105,7 +105,7 @@ const randomImagePlugin: Hapi.Plugin<undefined> = {
          * @param h - Hapi响应工具包
          * @returns {Promise<Object|ResponseObject>} 返回JSON数据或重定向响应
          */
-        server.method('obtainUserToken', async (requestType: string, h: Hapi.ResponseToolkit) => {
+        server.method('randomImage', async (requestType: string, h: Hapi.ResponseToolkit) => {
             try {
                 const max = await getMaxId();
                 const randomId = getRandomInt(0, max);

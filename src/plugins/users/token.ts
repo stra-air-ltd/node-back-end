@@ -6,6 +6,7 @@ import crypto from 'crypto';
  * @plugin userTokenDistribute
  * @version 1.0.0
  */
+
 const userTokenDistribute: Hapi.Plugin<undefined> = {
     name: 'userTokenDistribute',
     version: '1.0.0',
@@ -16,7 +17,7 @@ const userTokenDistribute: Hapi.Plugin<undefined> = {
             message: string,
             data: any
         };
-
+        
         let request: request;
         /**
          * 创建用户令牌
@@ -232,7 +233,7 @@ const userTokenDistribute: Hapi.Plugin<undefined> = {
         });
 
         server.method('logoutUserToken', async (UserId: number, UserToken: string) => {
-            return await logoutUserToken(UserId, UserToken)
+            return await logoutUserToken(UserId, UserToken);
         });
     },
 };
