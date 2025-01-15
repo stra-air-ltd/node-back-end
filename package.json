@@ -4,7 +4,7 @@
   "description": "星空伟奕科技有限公司的node.js api后端",
   "main": "dist/server.js",
   "scripts": {
-    "test": "tsc && node dist/server.js",
+    "dev": "nodemon",
     "build": "tsc",
     "start": "node dist/server.js"
   },
@@ -34,6 +34,7 @@
     "babel-loader": "^9.2.1",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-3": "^6.24.1",
+    "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
   }
