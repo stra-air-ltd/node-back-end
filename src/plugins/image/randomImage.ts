@@ -37,7 +37,7 @@ const randomImagePlugin: Hapi.Plugin<undefined> = {
 
 	                // 设置较长的缓存时间（24小时）
                 if (redisResult.code === 200) {
-                    await server.methods.redisQuery(`SETEX maxId 10 "${maxId}"`);
+                    await server.methods.redisQuery(`SETEX maxId 3600 "${maxId}"`);
                 }
 
                 return maxId;

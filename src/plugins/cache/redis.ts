@@ -36,67 +36,53 @@ const redisPlugin: Hapi.Plugin<undefined> = {
     name: 'redisPlugin',
     version: '1.0.0',
     register: async (server: Hapi.Server) => {
-        // Redis客户端实例
-        let redisClient: RedisClientType | null = null;
+      // Redis客户端实例
+      let redisClient: RedisClientType | null = null;
 
-        if (process.env.REDIS_ENABLE === "true") {
-            // 创建Redis客户端连接
-            redisClient = createClient({
-                url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
-                password: process.env.REDIS_PASSWORD,
-            });
+      // 创建Redis客户端连接
+      redisClient = createClient({
+        url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
+        password: process.env.REDIS_PASSWORD,
+      });
 
-            // 建立Redis连接
-            try {
-                await redisClient.connect();
-                console.log('Redis client connected');
-            } catch (err) {
-                console.error('Redis connection error:', err);
-            }
+      // 建立Redis连接
+      try {
+        await redisClient.connect();
+        console.log("Redis client connected");
+      } catch (err) {
+        console.error("Redis connection error:", err);
+      }
 
-            // 注册Redis错误事件监听器
-            redisClient.on('error', (err) => {
-                console.error('Redis error:', err);
-            });
-        } else {
-            console.log('redis没有启用，我们不确定这是不是有意的');
-            console.log('如果您想启用Redis请检查 .env 文件的 REDIS_ENABLE 字段是否为 true');
+      // 注册Redis错误事件监听器
+      redisClient.on("error", (err) => {
+        console.error("Redis error:", err);
+      });
+
+      /**
+       * Redis查询方法
+       * @param queryStatement - Redis查询语句
+       * @returns {Promise<Object>} 返回查询结果对象
+       * - code: 状态码 (200-成功, 500-错误)
+       * - message: 状态信息
+       * - data: 查询结果数据
+       */
+      server.method("redisQuery", async (queryStatement: string) => {
+        try {
+          const result = await redisClient.get(queryStatement);
+          return {
+            code: 200,
+            message: "查询成功",
+            data: result,
+          };
+        } catch (err) {
+          console.error("[Redis] 查询错误:", err);
+          return {
+            code: 500,
+            message: "查询失败",
+            data: err instanceof Error ? err.message : "未知错误",
+          };
         }
-
-        /**
-         * Redis查询方法
-         * @param queryStatement - Redis查询语句
-         * @returns {Promise<Object>} 返回查询结果对象
-         * - code: 状态码 (200-成功, 400-未启用, 500-错误)
-         * - message: 状态信息
-         * - data: 查询结果数据
-         */
-        server.method('redisQuery', async (queryStatement: string) => {
-            if (process.env.REDIS_ENABLE === "false" || !redisClient) {
-                console.log('[Redis] 未启用Redis服务');
-                return {
-                    code: 400,
-                    message: 'Redis没有启用, 如果您想启用Redis请检查 .env 文件的 REDIS_ENABLE 字段是否为 true',
-                    data: null,
-                };
-            }
-
-            try {
-                const result = await redisClient.get(queryStatement);
-                return {
-                    code: 200,
-                    message: '查询成功',
-                    data: result,
-                };
-            } catch (err) {
-                console.error('[Redis] 查询错误:', err);
-                return {
-                    code: 500,
-                    message: '查询失败',
-                    data: err instanceof Error ? err.message : '未知错误',
-                };
-            }
-        });
+      });
     }
 };
 
