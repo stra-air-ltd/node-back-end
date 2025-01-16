@@ -23,10 +23,15 @@ jobs:
         mkdir -p /etc/apt/keyrings
         
         # 导入所有必需的 Debian 密钥
-        curl -fsSL https://download.oracle.com/java/GPG-KEY-oracle-java | gpg --dearmor -o /etc/apt/keyrings/oracle-java.gpg
-        
-        # 添加Java仓库
-        echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/oracle-java.gpg] https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye main" | tee /etc/apt/sources.list.d/java.list
+        gpg --no-default-keyring \
+            --keyring /etc/apt/keyrings/debian-archive-keyring.gpg \
+            --keyserver keyserver.ubuntu.com \
+            --recv-keys 648ACFD622F3D138 0E98404D386FA1D9 112695A0E562B32A 54404762BBB6E853
+            
+        # 配置 Debian 源
+        echo "deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye main" | tee /etc/apt/sources.list
+        echo "deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-updates main" | tee -a /etc/apt/sources.list
+        echo "deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] https://mirrors.tuna.tsinghua.edu.cn/debian-security bullseye-security main" | tee -a /etc/apt/sources.list
         
         # 更新并安装
         apt-get update
@@ -35,16 +40,13 @@ jobs:
         # 验证安装
         java -version
         echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
-        export PATH=$JAVA_HOME/bin:$PATH
+        export PATH=$JAVA_HOME/bin:$PATH       
 
     - name: Install SonarScanner
       run: |
-        export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-        export PATH=$JAVA_HOME/bin:$PATH
         wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
         unzip sonar-scanner-cli-4.8.0.2856-linux.zip
         mv sonar-scanner-4.8.0.2856-linux /opt/sonar-scanner
-        echo "sonar.java.jdkHome=/usr/lib/jvm/java-17-openjdk-amd64" >> /opt/sonar-scanner/conf/sonar-scanner.properties
 
     - name: SonarQube Scan
       env:
