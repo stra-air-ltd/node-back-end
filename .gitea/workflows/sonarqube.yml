@@ -10,7 +10,7 @@ name: SonarQube Scan
 jobs:
   sonarqube:
     name: SonarQube Trigger
-    runs-on: ubuntu-22.04
+    runs-on: jdk17
     steps:
     - name: Checking out
       uses: https://gitea.com/actions/checkout@v4
