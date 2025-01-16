@@ -19,14 +19,19 @@ jobs:
 
     - name: Set up JDK 17
       run: |
-        # 使用 Debian 源
-        echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye main" | tee /etc/apt/sources.list
-        echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-updates main" | tee -a /etc/apt/sources.list
-        echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security bullseye-security main" | tee -a /etc/apt/sources.list
+        # 创建源列表目录
+        mkdir -p /etc/apt/keyrings
         
-        # 添加Debian密钥
-        apt-key adv --keyserver keyserver.debian.org --recv-keys 648ACFD622F3D138
-        apt-key adv --keyserver keyserver.debian.org --recv-keys 0E98404D386FA1D9
+        # 导入 Debian 密钥
+        gpg --no-default-keyring \
+            --keyring /etc/apt/keyrings/debian-archive-keyring.gpg \
+            --keyserver keyserver.ubuntu.com \
+            --recv-keys 648ACFD622F3D138 0E98404D386FA1D9
+            
+        # 配置 Debian 源
+        echo "deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye main" | tee /etc/apt/sources.list
+        echo "deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-updates main" | tee -a /etc/apt/sources.list
+        echo "deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] https://mirrors.tuna.tsinghua.edu.cn/debian-security bullseye-security main" | tee -a /etc/apt/sources.list
         
         # 更新并安装
         apt-get update
