@@ -19,10 +19,16 @@ jobs:
 
     - name: Set up JDK 17
       run: |
+        # 添加APT密钥
+        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 871920D1991BC93C
+        
+        # 配置清华源
         echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse" | tee /etc/apt/sources.list
         echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse" | tee -a /etc/apt/sources.list
         echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse" | tee -a /etc/apt/sources.list
         echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-security main restricted universe multiverse" | tee -a /etc/apt/sources.list
+        
+        # 更新并安装
         apt-get update
         apt-get install -y openjdk-17-jdk
         java -version
