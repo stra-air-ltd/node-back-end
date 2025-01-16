@@ -1,5 +1,4 @@
 import * as Hapi from '@hapi/hapi';
-import { read } from 'fs';
 
 export const routes = (server: Hapi.Server): Array<Hapi.ServerRoute> => [
     {
