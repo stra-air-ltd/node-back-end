@@ -22,11 +22,11 @@ jobs:
         # 创建源列表目录
         mkdir -p /etc/apt/keyrings
         
-        # 导入 Debian 密钥
+        # 导入所有必需的 Debian 密钥
         gpg --no-default-keyring \
             --keyring /etc/apt/keyrings/debian-archive-keyring.gpg \
             --keyserver keyserver.ubuntu.com \
-            --recv-keys 648ACFD622F3D138 0E98404D386FA1D9
+            --recv-keys 648ACFD622F3D138 0E98404D386FA1D9 112695A0E562B32A 54404762BBB6E853
             
         # 配置 Debian 源
         echo "deb [signed-by=/etc/apt/keyrings/debian-archive-keyring.gpg] https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye main" | tee /etc/apt/sources.list
