@@ -10,13 +10,23 @@ name: SonarQube Scan
 jobs:
   sonarqube:
     name: SonarQube Trigger
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - name: Checking out
       uses: https://gitea.com/actions/checkout@v4
       with:
         # Disabling shallow clone is recommended for improving relevancy of reporting
         fetch-depth: 0
+    - name: 安装运行环境
+      run: |
+      cat > /etc/apt/sources.list << EOF
+      deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse
+      deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse
+      deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
+      
+      deb http://security.ubuntu.com/ubuntu/ jammy-security main restricted universe multiverse
+      EOF
+      apt install openjdk-17-jdk -y
     - name: SonarQube Scan
       uses: https://gitea.com/kitabisa/sonarqube-action@v1.2.0
       with:
