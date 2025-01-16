@@ -19,20 +19,16 @@ jobs:
 
     - name: Set up JDK 17
       run: |
-        # 安装必要工具
-        apt-get update
-        apt-get install -y apt-utils gnupg2 software-properties-common
+        # 使用 Debian 源
+        echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye main" | tee /etc/apt/sources.list
+        echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-updates main" | tee -a /etc/apt/sources.list
+        echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security bullseye-security main" | tee -a /etc/apt/sources.list
         
-        # 添加Ubuntu密钥
-        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 871920D1991BC93C
+        # 添加Debian密钥
+        apt-key adv --keyserver keyserver.debian.org --recv-keys 648ACFD622F3D138
+        apt-key adv --keyserver keyserver.debian.org --recv-keys 0E98404D386FA1D9
         
-        # 配置清华源
-        echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse" | tee /etc/apt/sources.list
-        echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse" | tee -a /etc/apt/sources.list
-        echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse" | tee -a /etc/apt/sources.list
-        echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-security main restricted universe multiverse" | tee -a /etc/apt/sources.list
-        
-        # 更新并安装JDK
+        # 更新并安装
         apt-get update
         DEBIAN_FRONTEND=noninteractive apt-get install -y openjdk-17-jdk
         
