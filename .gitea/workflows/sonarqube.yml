@@ -23,20 +23,22 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Cache SonarQube packages
-      uses: https://gitea.com/actions/cache@v3
-      with:
-        path: ~/.sonar/cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
+    - name: Install SonarScanner
+      run: |
+        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
+        unzip sonar-scanner-cli-4.8.0.2856-linux.zip
+        mv sonar-scanner-4.8.0.2856-linux /opt/sonar-scanner
 
     - name: SonarQube Scan
-      uses: https://gitea.com/SonarSource/sonarqube-scan-action@master
       env:
         SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONARQUBE_HOST }}
-      with:
-        args: >
-          -Dsonar.projectKey=${{ github.repository }}
-          -Dsonar.sources=.
-          -Dsonar.java.binaries=.
+      run: |
+        /opt/sonar-scanner/bin/sonar-scanner \
+          -Dsonar.projectKey=${{ github.repository }} \
+          -Dsonar.sources=src \
+          -Dsonar.host.url=${{ secrets.SONARQUBE_HOST }} \
+          -Dsonar.login=${{ secrets.SONARQUBE_TOKEN }} \
+          -Dsonar.sourceEncoding=UTF-8 \
+          -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
+          -Dsonar.exclusions=**/node_modules/**,**/*.test.ts
