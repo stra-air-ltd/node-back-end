@@ -19,8 +19,12 @@ jobs:
 
     - name: Set up JDK 17
       run: |
-        # 添加APT密钥
-        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 871920D1991BC93C
+        # 安装必要工具
+        apt-get update
+        apt-get install -y apt-utils gnupg2 software-properties-common
+        
+        # 添加Ubuntu APT密钥
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 871920D1991BC93C
         
         # 配置清华源
         echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse" | tee /etc/apt/sources.list
@@ -28,10 +32,9 @@ jobs:
         echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse" | tee -a /etc/apt/sources.list
         echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-security main restricted universe multiverse" | tee -a /etc/apt/sources.list
         
-        # 更新并安装
+        # 更新并安装JDK
         apt-get update
-        apt-get install -y apt-utils gnupg2 software-properties-common
-        apt-get install -y openjdk-17-jdk
+        DEBIAN_FRONTEND=noninteractive apt-get install -y openjdk-17-jdk
         java -version
         echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
 
