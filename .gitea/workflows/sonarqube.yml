@@ -15,7 +15,7 @@ jobs:
     - name: install runing environment 
       run:
         apt-get update;
-        apt-get install openjdk-17-jdk
+        apt-get install openjdk-17-jdk -y
     - name: Checking out
       uses: https://gitea.com/actions/checkout@v4
       with:
