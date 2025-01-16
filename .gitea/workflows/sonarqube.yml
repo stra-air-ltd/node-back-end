@@ -22,7 +22,9 @@ jobs:
         # 安装必要工具
         apt-get update
         apt-get install -y apt-utils gnupg2 software-properties-common
-      
+        
+        # 添加Ubuntu密钥
+        apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 871920D1991BC93C
         
         # 配置清华源
         echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse" | tee /etc/apt/sources.list
@@ -33,6 +35,8 @@ jobs:
         # 更新并安装JDK
         apt-get update
         DEBIAN_FRONTEND=noninteractive apt-get install -y openjdk-17-jdk
+        
+        # 验证安装
         java -version
         echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
 
