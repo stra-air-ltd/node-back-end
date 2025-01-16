@@ -18,10 +18,15 @@ jobs:
         fetch-depth: 0
 
     - name: Set up JDK 17
-      uses: https://gitea.com/actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '17'
+      run: |
+        echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse" | sudo tee /etc/apt/sources.list
+        echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
+        echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
+        echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-security main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list
+        sudo apt-get update
+        sudo apt-get install -y openjdk-17-jdk
+        java -version
+        echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> $GITHUB_ENV
 
     - name: Install SonarScanner
       run: |
