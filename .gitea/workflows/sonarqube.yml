@@ -22,9 +22,7 @@ jobs:
         # 安装必要工具
         apt-get update
         apt-get install -y apt-utils gnupg2 software-properties-common
-        
-        # 添加Ubuntu APT密钥
-        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 871920D1991BC93C
+      
         
         # 配置清华源
         echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse" | tee /etc/apt/sources.list
