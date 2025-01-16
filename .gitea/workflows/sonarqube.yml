@@ -13,9 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: install runing environment 
-    - name: Checking out
       run:
         sudo apt install openjdk-17-jdk
+    - name: Checking out
       uses: https://gitea.com/actions/checkout@v4
       with:
         # Disabling shallow clone is recommended for improving relevancy of reporting
