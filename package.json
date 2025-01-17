@@ -19,7 +19,7 @@
   },
   "jestSonar": {
     "reportPath": "coverage",
-    "reportFile": "test-report.xml",
+    "reportFile": "../test-report.xml",
     "indent": 4
   },
   "jest-junit": {
