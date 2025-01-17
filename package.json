@@ -12,18 +12,12 @@
     "start": "node dist/server.js"
   },
   "jest": {
-    "preset": "ts-jest",
-    "reporters": [
-      "default",
-      "jest-junit"
-    ],
-    "testEnvironment": "node",
-    "collectCoverage": true,
-    "coverageReporters": [
-      "lcov",
-      "text"
-    ],
-    "testResultsProcessor": "jest-junit"
+    "testResultsProcessor": "jest-sonar-reporter"
+  },
+  "jestSonar": {
+    "reportPath": "coverage",
+    "reportFile": "test-report.xml",
+    "indent": 4
   },
   "jest-junit": {
     "outputDirectory": ".",
@@ -63,6 +57,7 @@
     "babel-preset-stage-3": "^6.24.1",
     "jest": "^29.7.0",
     "jest-junit": "^16.0.0",
+    "jest-sonar-reporter": "^2.0.0",
     "nodemon": "^3.1.9",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",

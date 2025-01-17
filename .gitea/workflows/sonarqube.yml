@@ -58,6 +58,7 @@ jobs:
       run: |
         # 创建 .env 文件
         echo "${{ secrets.SERVER_ENV_CONFIG }}" > .env
+        npm config set registry https://registry.npmmirror.com
         npm install
         npm run build
         npm run test:coverage
