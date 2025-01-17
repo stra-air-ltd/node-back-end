@@ -75,7 +75,7 @@ const userLoginPlugin: Hapi.Plugin < undefined > = {
 		 *
 		 * @param {string} type - 用户输入的类型，可以是 'userName' 或 'userMail'。
 		 * @param {string} userInput - 要查询的用户输入值。
-		 * @returns {Promise<number>} - 与提供的输入相关联的用户ID。
+		 * @returns {Promise<number> | Promise<null>} - 与提供的输入相关联的用户ID。
 		 *
 		 * @throws {Error} - 如果类型不是 'userName' 或 'userMail'，则抛出错误。
 		 *
@@ -86,28 +86,21 @@ const userLoginPlugin: Hapi.Plugin < undefined > = {
 		async function getUserId(type: string, userInput: string) {
 			switch (type) {
 				case "userName":
-					const userNameRedisResult = await server.methods.redisQuery(
-						`GET user_name_${userInput}`
-					);
+					const userNameRedisResult = await server.methods.redisQuery(`GET user_name_${userInput}`);
 
 					if (userNameRedisResult.data !== null) {
 						return userNameRedisResult.data;
 					}
 
-					const userNameDatabaseResult = await server.methods.databaseQuery(
-						`SELECT id FORM users WHERE user_name = ${userInput}`
-					);
+					const userNameDatabaseResult = await server.methods.databaseQuery(`SELECT id FORM users WHERE user_name = ${userInput}`);
 
-					if (
-						userNameDatabaseResult[0][0].id !== null &&
-						userNameRedisResult.code === 200
-					) {
-						await server.methods.redisQuery(
-							`SET user_name_${userInput} ${userNameDatabaseResult[0][0].id}`
-						);
-						await server.methods.redisQuery(
-							`SETEX user_name_${userInput} 3600`
-						);
+					if (userNameDatabaseResult[0][0].id !== null && userNameRedisResult.code === 200) {
+						await server.methods.redisQuery(`SET user_name_${userInput} ${userNameDatabaseResult[0][0].id}`);
+						await server.methods.redisQuery(`SETEX user_name_${userInput} 3600`);
+					} 
+					
+					if (userNameDatabaseResult[0][0].id === null && userNameRedisResult.code === 200) {
+						return null;
 					}
 
 					return userNameDatabaseResult[0][0].id as number;
@@ -125,16 +118,9 @@ const userLoginPlugin: Hapi.Plugin < undefined > = {
 						`SELECT id FORM users WHERE user_mail = ${userInput}`
 					);
 
-					if (
-						userMailDatabaseResult[0][0].id !== null &&
-						userMailRedisResult.code === 200
-					) {
-						await server.methods.redisQuery(
-							`SET user_name_${userInput} ${userMailDatabaseResult[0][0].id}`
-						);
-						await server.methods.redisQuery(
-							`SETEX user_name_${userInput} 3600`
-						);
+					if (userMailDatabaseResult[0][0].id !== null && userMailRedisResult.code === 200) {
+						await server.methods.redisQuery(`SET user_name_${userInput} ${userMailDatabaseResult[0][0].id}`);
+						await server.methods.redisQuery(`SETEX user_name_${userInput} 3600`);
 					}
 
 					return userMailDatabaseResult[0][0].id as number;
@@ -241,14 +227,26 @@ const userLoginPlugin: Hapi.Plugin < undefined > = {
 			interface request {
 				code: number;
 				message: string;
-				data: any;
+				data?: any;
 			}
 
 			let request: request;
 
+			const userNamePattern = /^[\w\u4E00-\u9FA5]{4,64}$/;
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?.&_-])[\w$@$!%*?.&-]{8,128}/;
+            const userMailPattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/
+			const userIdPatten = /^\d+$/;
+			if (!passwordPattern.test(requestUserPassword)) {
+                request = {
+                    code: 401,
+                    message: "密码格式不正确"
+                };
+                return request;
+            }
+
 			switch (requestUserLoginWay) {
 				case "userNameOrPassword":
-					if (await userLoginWayPssswordOrUserName(requestUserInput, requestUserPassword)) {
+					if (await userLoginWayPssswordOrUserName(requestUserInput, requestUserPassword) && !userNamePattern.test(requestUserInput)) {
 						request = {
 							code: 200,
 							message: "登陆成功",
@@ -266,7 +264,7 @@ const userLoginPlugin: Hapi.Plugin < undefined > = {
           
 					return request;
 				case "userMailOrPassword":
-					if (await userLoginWayPssswordOrMail(requestUserInput, requestUserPassword)) {
+					if (await userLoginWayPssswordOrMail(requestUserInput, requestUserPassword) && !userMailPattern.test(requestUserInput)) {
 						request = {
 							code: 200,
 							message: "登陆成功",
@@ -284,7 +282,7 @@ const userLoginPlugin: Hapi.Plugin < undefined > = {
 					
           return request;
 				case "userIdOrPsssword":
-					if (await userLoginWayPssswordOrId(requestUserInput, requestUserPassword)) {
+					if (await userLoginWayPssswordOrId(requestUserInput, requestUserPassword) && userIdPatten.test(requestUserInput)) {
 						request = {
 							code: 200,
 							message: "登陆成功",
@@ -315,6 +313,9 @@ const userLoginPlugin: Hapi.Plugin < undefined > = {
 			return await rsaDecrypt(encryptedText);
 		});
 
+		server.method('getUserId', async (type: string, userInput: string) => {
+			return await getUserId(type, userInput);
+		});
 	}
 };
 
