@@ -1,25 +1,35 @@
-import Hapi from '@hapi/hapi';
+import { Server } from '@hapi/hapi';
 import { routes } from './routes/routes';
-import LoaderPluginAll from './loader/main';  
-import * as dotenv from 'dotenv';
+import LoaderPluginAll from './loader/main';
 
-dotenv.config();
-export const init = async () => {
-  
-  const server = Hapi.server({
-    port: process.env.SERVER_PORT,
-    host: process.env.SERVER_HOST,
-  });
+export async function init(): Promise<Server> {
+    const server = new Server({
+        port: process.env.SERVER_PORT || 7000,
+        host: process.env.SERVER_HOST || '0.0.0.0',
+    });
 
-  server.route(routes(server));
-  await LoaderPluginAll(server)
-  await server.start();
-  console.log(`Server running on ${server.info.uri}`);
-};
+    try {
+        server.route(routes(server));
+        await LoaderPluginAll(server);
+        await server.initialize();
+        return server;
+    } catch (error) {
+        console.error('服务器初始化失败:', error);
+        throw error;
+    }
+}
+
+export async function start(server: Server): Promise<void> {
+    try {
+        await server.start();
+        console.log(`服务器运行在: ${server.info.uri}`);
+    } catch (error) {
+        console.error('服务器启动失败:', error);
+        throw error;
+    }
+}
 
 process.on('unhandledRejection', (err) => {
-  console.log(err);
-  process.exit(1);
+    console.error('未处理的异步错误:', err);
+    process.exit(1);
 });
-
-init();
