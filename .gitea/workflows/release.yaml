@@ -1,0 +1,58 @@
+name: release-tag
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+      types: [opened, synchronize, reopened]
+
+jobs:
+  release-image:
+    runs-on: ubuntu-latest
+    container:
+      image: catthehacker/ubuntu:act-latest
+    env:
+      DOCKER_ORG: teacup
+      DOCKER_LATEST: nightly
+      RUNNER_TOOL_CACHE: /toolcache
+    steps:
+      - name: Checkout
+        uses: https://gitea.com/actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: https://gitea.com/docker/setup-qemu-action@v2
+
+      - name: Set up Docker BuildX
+        uses: https://gitea.com/docker/setup-buildx-action@v2
+        with: # replace it with your local IP
+          config-inline: |
+            [registry."git.starair.ltd"] 
+              http = false
+              insecure = true            
+
+      - name: Login to DockerHub
+        uses: https://gitea.com/docker/login-action@v2
+        with:
+          registry: git.starair.ltd # replace it with your local IP
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Get Meta
+        id: meta
+        run: |
+          echo REPO_NAME=$(echo ${GITHUB_REPOSITORY} | awk -F"/" '{print $2}') >> $GITHUB_OUTPUT
+          echo REPO_VERSION=$(git describe --tags --always | sed 's/^v//') >> $GITHUB_OUTPUT                
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: |
+            linux/amd64
+            linux/arm64                        
+          push: true
+          tags: | # replace it with your local IP and tags
+            git.starair.ltd/${{ env.DOCKER_ORG }}/${{ steps.meta.outputs.REPO_NAME }}:${{ steps.meta.outputs.REPO_VERSION }}
+            git.starair.ltd/${{ env.DOCKER_ORG }}/${{ steps.meta.outputs.REPO_NAME }}:${{ env.DOCKER_LATEST }}

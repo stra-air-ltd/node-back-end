@@ -1,7 +1,12 @@
 name: test
 run-name: ${{ gitea.actor }}运行测试 🚀
-on: [push]
-
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+      types: [opened, synchronize, reopened]
 jobs:
   bulid-Actions:
     runs-on: alpine
