@@ -29,7 +29,7 @@ async function countFilesInDirectory(directoryPath: string): Promise<number> {
 
 export default async function LoaderPluginAll(server: Hapi.Server) {
     dotenv.config();
-
+    
     interface TsConfig {
         compilerOptions: {
             outDir: string;
@@ -45,7 +45,12 @@ export default async function LoaderPluginAll(server: Hapi.Server) {
 
     try {
         const tsconfig: TsConfig = JSON.parse(fs.readFileSync(tsconfigPath, 'utf8'));
-        pluginsDirectory = path.resolve(process.cwd(), tsconfig.compilerOptions.outDir, 'plugins');
+
+        if (process.env.COVERAGE_TEST === "TRUE") {
+            pluginsDirectory = path.resolve(process.cwd(), tsconfig.compilerOptions.rootDir, 'plugins');
+        } else {
+            pluginsDirectory = path.resolve(process.cwd(), tsconfig.compilerOptions.outDir, 'plugins');
+        }
     } catch (err) {
         console.error('无法读取 tsconfig.json:', err);
         throw err;
