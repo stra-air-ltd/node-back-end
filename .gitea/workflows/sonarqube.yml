@@ -61,8 +61,16 @@ jobs:
         npm config set registry https://registry.npmmirror.com
         npm install
         npm run build
+        
+        # 运行测试并生成覆盖率报告
         npm run test:coverage
-        /opt/sonar-scanner/bin/sonar-scanner -X \
+        
+        # 确保测试报告存在
+        ls -la coverage/
+        ls -la test-report.xml
+        
+        # 运行 sonar-scanner
+        /opt/sonar-scanner/bin/sonar-scanner \
           -Dsonar.projectKey=node-back-end \
           -Dsonar.projectName=node-back-end \
           -Dsonar.sources=src \
@@ -71,4 +79,6 @@ jobs:
           -Dsonar.sourceEncoding=UTF-8 \
           -Dsonar.java.home=/usr/lib/jvm/java-17-openjdk-amd64 \
           -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
-          -Dsonar.exclusions=**/node_modules/**,**/*.test.ts
+          -Dsonar.testExecutionReportPaths=test-report.xml \
+          -Dsonar.exclusions=**/node_modules/**,**/*.test.ts,**/coverage/** \
+          -Dsonar.coverage.exclusions=**/*.test.ts,**/tests/**/*
