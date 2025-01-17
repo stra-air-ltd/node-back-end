@@ -55,8 +55,14 @@ describe('Server', () => {
     });
 
     test('服务器应该处理插件加载错误', async () => {
-        const mockLoadPlugins = jest.fn().mockRejectedValue(new Error('插件加载失败'));
-        jest.mock('../loader/main', () => mockLoadPlugins);
+        jest.mock('../loader/main', () => ({
+            __esModule: true,
+            default: jest.fn().mockRejectedValue(new Error('插件加载失败'))
+        }));
+
+        // Clear module cache to ensure mock is used
+        jest.resetModules();
+        const { init } = require('../server');
 
         await expect(init()).rejects.toThrow('插件加载失败');
     });

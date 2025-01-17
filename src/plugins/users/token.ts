@@ -33,7 +33,7 @@ const userTokenDistribute: Hapi.Plugin<undefined> = {
             const tokenHash256 = crypto.createHash('sha256').update(randomString).digest('hex');
             
             await server.methods.redisQuery(`SET user_${id}_token ${tokenHash256}`);
-            server.methods.databaseQuery(`INSERT INTO 'users_token' ('id', 'token', 'enable_status') VALUES ('${id}', '${tokenHash256}', 'true'`);
+            server.methods.databaseQuery(`INSERT INTO users_token (id, token, enable_status) VALUES ('${id}', '${tokenHash256}', 'true')`);
             server.methods.redisQuery(`EXPIREAT user_${id}_token 604800`);
 
             return {
