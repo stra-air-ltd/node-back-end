@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as Hapi from '@hapi/hapi';
 import * as dotenv from 'dotenv';
-import { plugin } from '@hapi/inert';
 
 let numberTimes = 0;
 
