@@ -29,10 +29,27 @@ async function countFilesInDirectory(directoryPath: string): Promise<number> {
 
 export default async function LoaderPluginAll(server: Hapi.Server) {
     dotenv.config();
-    const pluginsDirectory: string = process.env.PLUGINS_DIRECTORY as string;
 
+    interface TsConfig {
+        compilerOptions: {
+            outDir: string;
+            rootDir: string;
+        };
+    }
+    
+    const tsconfigPath = path.resolve(process.cwd(), 'tsconfig.json');
+
+    let pluginsDirectory = '';
     let registeredPluginsNumber: number = 0;
     let fileCount: number = 0;
+
+    try {
+        const tsconfig: TsConfig = JSON.parse(fs.readFileSync(tsconfigPath, 'utf8'));
+        pluginsDirectory = path.resolve(process.cwd(), tsconfig.compilerOptions.outDir, 'plugins');
+    } catch (err) {
+        console.error('无法读取 tsconfig.json:', err);
+        throw err;
+    }
 
     console.log('正在注册插件，请稍等...');
 

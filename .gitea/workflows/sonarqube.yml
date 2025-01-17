@@ -56,6 +56,13 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONARQUBE_HOST }}
       run: |
+        # 创建 .env 文件
+        echo ${{ secrets.SONARQUBE_HOST }}
+        echo "SERVER_PORT=${{ secrets.REDIS_HOST }}" > .env
+        echo "SERVER_HOST=0.0.0.0" >> .env
+        echo "REDIS_HOST=localhost" >> .env
+        echo "REDIS_PORT=6379" >> .env
+        echo "REDIS_PASSWORD=" >> .env
         npm install
         npm run build
         npm run test:coverage
