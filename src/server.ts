@@ -4,7 +4,7 @@ import LoaderPluginAll from './loader/main';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
-const init = async () => {
+export const init = async () => {
   
   const server = Hapi.server({
     port: process.env.SERVER_PORT,

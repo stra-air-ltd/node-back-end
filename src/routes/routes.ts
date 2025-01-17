@@ -47,4 +47,15 @@ export const routes = (server: Hapi.Server): Array<Hapi.ServerRoute> => [
             return server.methods.verifyUserToken(userId, userToken);
         }
     },
+    {
+        method: 'GET',
+        path: '/health',
+        handler: async (request, h) => {
+          return h.response({ status: 'ok' }).code(200);
+        },
+        options: {
+          description: '健康检查接口',
+          tags: ['api', 'health']
+        }
+    },
 ];
