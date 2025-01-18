@@ -72,12 +72,12 @@ const register: Hapi.Plugin<undefined> = {
 
             await server.methods.databaseQuery(`INSERT INTO 'users' ('id', 'name', 'mail', 'password') VALUES ('${ registerUserId }', '${ userName }', '${userMail}', '${ encryptionPsssword }')`);
             
-            const userToken = await server.methods.createUserToken(registerUserId).data.token;
+            const userToken = await server.methods.createUserToken(registerUserId);
             request = {
                 code: 204,
                 message: "用户注册成功，请登陆然后验证您的邮箱",
                 data: {
-                    token: userToken
+                    token: userToken.data.token
                 }
             };
 

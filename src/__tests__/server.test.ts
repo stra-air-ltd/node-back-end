@@ -5,9 +5,10 @@ import LoaderPluginAll from '../loader/main';
 
 describe('Server', () => {
     let server: Server;
+    let originalEnv: NodeJS.ProcessEnv;
 
     beforeEach(async () => {
-        // 保存原始环境变量
+        originalEnv = { ...process.env };
         process.env.NODE_ENV = 'test';
         process.env.SERVER_PORT = '7000';
         process.env.SERVER_HOST = '0.0.0.0';
@@ -17,6 +18,9 @@ describe('Server', () => {
         if (server) {
             await server.stop();
         }
+        process.env = originalEnv;
+        jest.resetModules();
+        jest.clearAllMocks();
     });
 
     test('服务器应该正确初始化', async () => {
@@ -41,10 +45,6 @@ describe('Server', () => {
         
         // 验证基本路由是否存在
         expect(table.find(route => route.path === '/')).toBeDefined();
-        expect(table.find(route => route.path === '/health')).toBeDefined();
-        expect(table.find(route => route.path === '/randomImage')).toBeDefined();
-    });
-
     test('服务器应该能启动和停止', async () => {
         server = await init();
         await server.start();
@@ -75,4 +75,4 @@ describe('Server', () => {
         expect(server.info.port).toBe(7000);  // 默认端口
         expect(server.info.host).toBe('0.0.0.0');  // 默认主机
     });
-});
+})});

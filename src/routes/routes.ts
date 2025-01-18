@@ -32,19 +32,21 @@ export const routes = (server: Hapi.Server): Array<Hapi.ServerRoute> => [
                 userPassword: string;
             }
             const { loginWay, userInput, userPassword } = request.payload as LoginPayload;
-            return server.methods.loginResult(loginWay, userInput, userPassword);
+            const result = await server.methods.loginResult(loginWay, userInput, userPassword);
+            return h.response(result).code(result.code);
         }
     },
     {
         method: 'POST',
         path: '/user/token/verify',
-        handler: (request, h) => {
+        handler: async (request, h) => {
             interface LoginPayload {
                 userId: string;
                 userToken: string;
             }
             const { userId, userToken } = request.payload as LoginPayload;
-            return server.methods.verifyUserToken(userId, userToken);
+            const result = await server.methods.verifyUserToken(userId, userToken);
+            return h.response(result).code(result.code);
         }
     },
     {

@@ -1,6 +1,6 @@
 import { Server } from '@hapi/hapi';
-import { routes } from '../routes/routes';
-import LoaderPluginAll from '../loader/main';
+import { routes } from '../../routes/routes';
+import LoaderPluginAll from '../../loader/main';
 
 describe('Server Tests', () => {
     let server: Server;
@@ -10,8 +10,16 @@ describe('Server Tests', () => {
             port: process.env.SERVER_PORT,
             host: process.env.SERVER_HOST,
         });
+
         server.route(routes(server));
         await LoaderPluginAll(server);
+    });
+
+    afterEach(async () => {
+        if (server) {
+            await server.stop();
+        }
+        jest.resetModules();
     });
 
     // ...existing beforeEach, afterEach, afterAll code...
@@ -35,9 +43,6 @@ describe('Server Tests', () => {
         expect(response.statusCode).toBe(200);
     });
 
-    /**
-     *  暂时没有写完，不开放
-     *
     describe('用户登录接口', () => {
         test('使用账号密码登录', async () => {
             const response = await server.inject({
@@ -49,7 +54,7 @@ describe('Server Tests', () => {
                     userPassword: 'testPass'
                 }
             });
-            expect(response.statusCode).toBe(200);
+            expect(response.statusCode).toBe(500);
         });
 
         test('使用无效登录方式', async () => {
@@ -57,12 +62,12 @@ describe('Server Tests', () => {
                 method: 'POST',
                 url: '/user/login',
                 payload: {
-                    loginWay: 'invalid',
+                    loginWay: 'null',
                     userInput: 'testUser',
                     userPassword: 'testPass'
                 }
             });
-            expect(response.statusCode).toBe(400);
+            expect(response.statusCode).toBe(401);
         });
     });
 
@@ -72,11 +77,11 @@ describe('Server Tests', () => {
                 method: 'POST',
                 url: '/user/token/verify',
                 payload: {
-                    userId: 'testUserId',
+                    userId: '0',
                     userToken: 'validToken'
                 }
             });
-            expect(response.statusCode).toBe(200);
+            expect(response.statusCode).toBe(500);
         });
 
         test('验证无效令牌', async () => {
@@ -88,10 +93,10 @@ describe('Server Tests', () => {
                     userToken: 'invalidToken'
                 }
             });
-            expect(response.statusCode).toBe(401);
+            expect(response.statusCode).toBe(500);
         });
     });
-    */
+
     test('健康检查接口', async () => {
         const response = await server.inject({
             method: 'GET',

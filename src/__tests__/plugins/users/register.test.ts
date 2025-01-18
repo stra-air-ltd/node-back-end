@@ -1,5 +1,5 @@
 import { Server } from '@hapi/hapi';
-import registerPlugin from '../plugins/users/register';
+import registerPlugin from '../../../plugins/users/register';
 
 describe('User Registration Tests', () => {
     let server: Server;
@@ -122,8 +122,7 @@ describe('User Registration Tests', () => {
     });
 
     describe('Registration Process', () => {
-        /**
-         * 
+
         test('should successfully register new user', async () => {
             (server.methods.getUserId as jest.Mock).mockResolvedValue(null);
             (server.methods.databaseQuery as jest.Mock)
@@ -144,7 +143,8 @@ describe('User Registration Tests', () => {
             expect(result.code).toBe(204);
             expect(result.data.token).toBe('testToken');
         });
-        */
+        
+        
         test('should handle database query errors', async () => {
             (server.methods.getUserId as jest.Mock).mockResolvedValue(null);
             (server.methods.databaseQuery as jest.Mock).mockRejectedValue(

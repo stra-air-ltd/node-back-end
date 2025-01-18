@@ -1,5 +1,5 @@
 import { Server } from '@hapi/hapi';
-import userLoginPlugin from '../plugins/users/login';
+import userLoginPlugin from '../../../plugins/users/login';
 
 describe('getUserId Tests', () => {
 	let server: Server;

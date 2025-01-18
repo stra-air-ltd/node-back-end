@@ -1,4 +1,4 @@
-import { Server } from '@hapi/hapi';
+import { server, Server } from '@hapi/hapi';
 import { routes } from './routes/routes';
 import LoaderPluginAll from './loader/main';
 
@@ -19,8 +19,9 @@ export async function init(): Promise<Server> {
     }
 }
 
-export async function start(server: Server): Promise<void> {
+export async function start(): Promise<void> {
     try {
+        const server = await init();
         await server.start();
         console.log(`服务器运行在: ${server.info.uri}`);
     } catch (error) {
@@ -33,3 +34,5 @@ process.on('unhandledRejection', (err) => {
     console.error('未处理的异步错误:', err);
     process.exit(1);
 });
+
+start();

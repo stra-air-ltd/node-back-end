@@ -45,6 +45,7 @@ const userLoginPlugin: Hapi.Plugin < undefined > = {
 		/**
 		 * RSA解密函数，使用私钥解密文本。
 		 *
+		 *
 		 * @param {string} encryptedText - Base64编码的加密文本。
 		 * @returns {string} - 返回解密后的原始文本。
 		 * @throws {Error} - 解密失败时抛出错误。
@@ -106,6 +107,7 @@ const userLoginPlugin: Hapi.Plugin < undefined > = {
 					return userNameDatabaseResult[0][0].id as number;
 
 				case "userMail":
+				
 					const userMailRedisResult = await server.methods.redisQuery(
 						`GET user_mail_${userInput}`
 					);
@@ -183,6 +185,7 @@ const userLoginPlugin: Hapi.Plugin < undefined > = {
 		 * @param userPassword
 		 * @returns boolean
 		 */
+	
 		async function userLoginWayPssswordOrUserName(
 			userName: string,
 			userPassword: string
@@ -284,6 +287,7 @@ const userLoginPlugin: Hapi.Plugin < undefined > = {
 				case "userIdOrPsssword":
 					if (await userLoginWayPssswordOrId(requestUserInput, requestUserPassword) && userIdPatten.test(requestUserInput)) {
 						request = {
+						
 							code: 200,
 							message: "登陆成功",
 							data: {
@@ -300,7 +304,12 @@ const userLoginPlugin: Hapi.Plugin < undefined > = {
 
           return request;
 				default:
-					break;
+					request = {
+						code: 401,
+						message: "此用户不存在或密码错误",
+						data: null,
+					};
+					return request;
 			}
 
 		});
